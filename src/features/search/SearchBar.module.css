@@ -1,4 +1,100 @@
 .wrap {
+  position: relative;
   width: 100%;
   max-width: 560px;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: var(--z-popover);
+  padding: 6px;
+  border-radius: var(--r-2);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-panel-solid);
+  box-shadow: var(--shadow-pop);
+  animation: dropIn var(--dur-2) var(--ease-out);
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 9px;
+  border-radius: var(--r-1);
+  text-align: left;
+  color: var(--text-secondary);
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+
+.item:hover,
+.itemActive {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.itemActive {
+  background: var(--accent-wash);
+  color: var(--text-primary);
+}
+
+.itemIcon {
+  display: flex;
+  flex: none;
+  color: var(--text-muted);
+}
+
+.itemActive .itemIcon {
+  color: var(--accent);
+}
+
+.itemText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.itemName {
+  font-size: var(--fs-13);
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemSub {
+  font-size: var(--fs-11);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemClock {
+  color: var(--text-faint);
+  flex: none;
+}
+
+.foot {
+  padding: 8px 10px 4px;
+  font-size: var(--fs-10);
+  letter-spacing: 0.02em;
+  color: var(--text-faint);
+  border-top: 1px solid var(--divider);
+  margin-top: 4px;
 }

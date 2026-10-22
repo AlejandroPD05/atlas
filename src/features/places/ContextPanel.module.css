@@ -119,3 +119,83 @@
 .actions > :first-child {
   flex: 1;
 }
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+
+.contactRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--fs-12);
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+.contactIcon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--text-muted);
+}
+
+.contactLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--accent);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.contactLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.contactSource {
+  margin-top: 2px;
+  font-size: var(--fs-10);
+  color: var(--text-faint);
+}
+
+.contactNote {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+  font-size: var(--fs-11);
+  line-height: 1.55;
+  color: var(--text-faint);
+}
+
+.actionsSecondary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.actionsSecondary > * {
+  flex: 1 1 auto;
+}
+
+.osmLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  font-size: var(--fs-11);
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.osmLink:hover {
+  color: var(--text-primary);
+}
+

@@ -89,7 +89,7 @@ export const PLACE_CATEGORIES: PlaceCategory[] = [
     label: 'Alojamiento',
     group: 'servicios',
     overpassFilter: 'nwr["tourism"~"hotel|guest_house|hostel|apartment"]',
-    keywords: ['hotel', 'hoteles', 'hostal', 'albergue', 'apartamento'],
+    keywords: ['hotel', 'hoteles', 'hostal', 'albergue', 'apartamento', 'alojamiento', 'alojamientos'],
   },
   {
     id: 'banco',
@@ -196,15 +196,33 @@ export function normalizeText(s: string): string {
     .trim()
 }
 
-/** Detecta si la consulta de búsqueda corresponde a una categoría conocida. */
+/** Detecta si la consulta de búsqueda corresponde a una categoría conocida.
+    Es deliberadamente conservador: un nombre propio como «Museo del Prado»
+    no debe convertirse en una búsqueda de categoría. */
 export function detectCategory(query: string): PlaceCategory | null {
   const q = normalizeText(query)
   if (q.length < 3) return null
   for (const cat of PLACE_CATEGORIES) {
     for (const kw of cat.keywords) {
       const k = normalizeText(kw)
-      if (q === k || q.startsWith(`${k} `) || q.endsWith(` ${k}`)) return cat
+      if (q === k) return cat
+      if (q.endsWith(` ${k}`)) return cat
+      if (q.startsWith(`${k} `) && CATEGORY_QUALIFIERS.has(q.slice(k.length + 1).trim())) {
+        return cat
+      }
     }
   }
   return null
 }
+
+/** Modificadores que no convierten un nombre propio en categoría. */
+const CATEGORY_QUALIFIERS = new Set([
+  'cerca',
+  'cercanas',
+  'cercanos',
+  'aqui',
+  'en el mapa',
+  'en esta zona',
+  'por la zona',
+  'por aqui',
+])

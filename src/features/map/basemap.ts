@@ -1,9 +1,23 @@
 import type { FeatureCollection } from 'geojson'
-import type { LayerSpecification, StyleSpecification } from 'maplibre-gl'
+import type {
+  LayerSpecification,
+  Map as MapLibreMap,
+  SourceSpecification,
+  StyleSpecification,
+} from 'maplibre-gl'
 import type { BasemapDef } from '../../app/config'
 
-/* Estilo raster + capas GeoJSON propias (POI, lugares, ruta).
-   Sin capas symbol → no hacen falta glifos ni sprite externos. */
+/* ═══════════════════════════════════════════════════════════════
+   Mapa base + capas propias.
+
+   Dos modos:
+   1. Estilo vectorial completo (OpenFreeMap por defecto): aporta sus
+      fuentes, glifos, sprite y atribución. ATLAS añade sus capas GeoJSON
+      cuando el estilo ha terminado de cargar.
+   2. Teselas raster propias (VITE_TILES_*): estilo mínimo generado aquí.
+   Las capas propias no se incrustan en estilos de terceros para no
+   depender de su estructura interna.
+   ═══════════════════════════════════════════════════════════════ */
 
 export const SRC = {
   basemap: 'atlas-bm',
@@ -26,19 +40,50 @@ function emptyFC(): FeatureCollection {
   return { type: 'FeatureCollection', features: [] }
 }
 
-export function styleForBasemap(def: BasemapDef): StyleSpecification {
-  const layers = [
-    {
-      id: 'atlas-bg',
-      type: 'background',
-      paint: { 'background-color': '#06090b' },
+/**
+ * Estilo inicial del mapa: URL de un estilo vectorial (OpenFreeMap)
+ * o un estilo raster generado para teselas propias.
+ */
+export function baseStyleForBasemap(def: BasemapDef): string | StyleSpecification {
+  if (def.styleUrl) return def.styleUrl
+
+  return {
+    version: 8,
+    sources: {
+      [SRC.basemap]: {
+        type: 'raster',
+        tiles: def.tiles ?? [],
+        tileSize: 256,
+        maxzoom: 19,
+        ...(def.attribution ? { attribution: def.attribution } : {}),
+      },
     },
-    {
-      id: 'atlas-basemap',
-      type: 'raster',
-      source: SRC.basemap,
-      paint: { 'raster-opacity': 0.94 },
-    },
+    layers: [
+      { id: 'atlas-bg', type: 'background', paint: { 'background-color': '#06090b' } },
+      { id: 'atlas-basemap', type: 'raster', source: SRC.basemap, paint: { 'raster-opacity': 0.94 } },
+    ],
+  }
+}
+
+function overlaySources(): Array<[string, SourceSpecification]> {
+  return [
+    [
+      SRC.pois,
+      {
+        type: 'geojson',
+        data: emptyFC(),
+        cluster: true,
+        clusterMaxZoom: 15,
+        clusterRadius: 46,
+      },
+    ],
+    [SRC.places, { type: 'geojson', data: emptyFC() }],
+    [SRC.route, { type: 'geojson', data: emptyFC() }],
+  ]
+}
+
+function overlayLayers(): LayerSpecification[] {
+  return [
     /* Ruta: halo + contorno + línea */
     {
       id: LAYER.routeGlow,
@@ -112,39 +157,21 @@ export function styleForBasemap(def: BasemapDef): StyleSpecification {
       type: 'circle',
       source: SRC.places,
       paint: {
-        'circle-color': [
-          'case',
-          ['==', ['get', 'selected'], true],
-          '#3fe0c8',
-          '#e9f2f1',
-        ],
+        'circle-color': ['case', ['==', ['get', 'selected'], true], '#3fe0c8', '#e9f2f1'],
         'circle-radius': ['case', ['==', ['get', 'selected'], true], 6.5, 4.5],
         'circle-stroke-color': 'rgba(6, 12, 14, 0.9)',
         'circle-stroke-width': 1.5,
       },
     },
-  ] as LayerSpecification[]
+  ]
+}
 
-  return {
-    version: 8,
-    sources: {
-      [SRC.basemap]: {
-        type: 'raster',
-        tiles: def.tiles,
-        tileSize: 256,
-        maxzoom: 19,
-        attribution: def.attribution,
-      },
-      [SRC.pois]: {
-        type: 'geojson',
-        data: emptyFC(),
-        cluster: true,
-        clusterMaxZoom: 15,
-        clusterRadius: 46,
-      },
-      [SRC.places]: { type: 'geojson', data: emptyFC() },
-      [SRC.route]: { type: 'geojson', data: emptyFC() },
-    },
-    layers,
+/** Añade fuentes y capas propias encima del estilo ya cargado. Idempotente. */
+export function addAtlasOverlays(map: MapLibreMap): void {
+  for (const [id, spec] of overlaySources()) {
+    if (!map.getSource(id)) map.addSource(id, spec)
+  }
+  for (const layer of overlayLayers()) {
+    if (!map.getLayer(layer.id)) map.addLayer(layer)
   }
 }

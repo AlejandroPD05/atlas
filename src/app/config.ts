@@ -9,8 +9,11 @@ import type { LngLat, ProviderStatus } from '../types/domain'
 export interface BasemapDef {
   id: 'dark' | 'light'
   label: string
-  tiles: string[]
-  attribution: string
+  /** URL de un estilo vectorial completo (por defecto, OpenFreeMap). */
+  styleUrl?: string
+  /** Teselas raster propias; si existen, sustituyen al estilo vectorial. */
+  tiles?: string[]
+  attribution?: string
 }
 
 export interface ProviderDef {
@@ -20,27 +23,41 @@ export interface ProviderDef {
 
 const env = import.meta.env
 
-const CARTO_SUBDOMAINS = ['a', 'b', 'c', 'd']
+/* Mapa base: OpenFreeMap (vectorial, gratuito, sin clave) por defecto.
+   Atribución obligatoria incluida en su TileJSON. Si se configuran teselas
+   raster propias (VITE_TILES_*), se usan en su lugar. */
+const vectorDarkUrl = env.VITE_STYLE_DARK_URL ?? 'https://tiles.openfreemap.org/styles/dark'
+const vectorLightUrl = env.VITE_STYLE_LIGHT_URL ?? 'https://tiles.openfreemap.org/styles/positron'
+const rasterAttribution = env.VITE_TILES_ATTRIBUTION ?? '© OpenStreetMap contributors'
 
-function cartoTiles(style: string): string[] {
-  return CARTO_SUBDOMAINS.map(
-    (sub) => `https://${sub}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}.png`,
-  )
-}
+const customDarkTiles = env.VITE_TILES_DARK_URL ? [env.VITE_TILES_DARK_URL] : null
+const customLightTiles = env.VITE_TILES_LIGHT_URL ? [env.VITE_TILES_LIGHT_URL] : null
 
-const tileAttribution = env.VITE_TILES_ATTRIBUTION ?? '© OpenStreetMap contributors © CARTO'
+const basemaps: BasemapDef[] = [
+  customDarkTiles
+    ? { id: 'dark', label: 'Oscuro', tiles: customDarkTiles, attribution: rasterAttribution }
+    : { id: 'dark', label: 'Oscuro', styleUrl: vectorDarkUrl },
+  customLightTiles
+    ? { id: 'light', label: 'Claro', tiles: customLightTiles, attribution: rasterAttribution }
+    : { id: 'light', label: 'Claro', styleUrl: vectorLightUrl },
+]
 
-const darkTiles = env.VITE_TILES_DARK_URL ? [env.VITE_TILES_DARK_URL] : cartoTiles('dark_all')
-const lightTiles = env.VITE_TILES_LIGHT_URL ? [env.VITE_TILES_LIGHT_URL] : cartoTiles('light_all')
+/* Geocoding: Nominatim no permite autocompletado en su política de uso.
+   Photon (opcional) sí ofrece sugerencias; se activa por env. */
+const geocodingProvider: 'nominatim' | 'photon' =
+  env.VITE_GEOCODING_PROVIDER === 'photon' || (env.VITE_GEOCODING_URL ?? '').includes('photon')
+    ? 'photon'
+    : 'nominatim'
+
+const geocodingUrl =
+  env.VITE_GEOCODING_URL ??
+  (geocodingProvider === 'photon' ? 'https://photon.komoot.io' : 'https://nominatim.openstreetmap.org')
 
 export const appConfig = {
   name: 'ATLAS',
   tagline: 'Rutas según cómo quieres vivirlas',
 
-  basemaps: [
-    { id: 'dark', label: 'Oscuro', tiles: darkTiles, attribution: tileAttribution },
-    { id: 'light', label: 'Claro', tiles: lightTiles, attribution: tileAttribution },
-  ] satisfies BasemapDef[],
+  basemaps,
 
   defaultViewport: {
     center: { lng: -3.7038, lat: 40.4168 } satisfies LngLat,
@@ -50,9 +67,14 @@ export const appConfig = {
   },
 
   geocoding: {
-    url: env.VITE_GEOCODING_URL ?? 'https://nominatim.openstreetmap.org',
+    provider: geocodingProvider,
+    url: geocodingUrl,
     isDemo: env.VITE_GEOCODING_URL === undefined,
-  } satisfies ProviderDef,
+    supportsSuggestions: geocodingProvider === 'photon',
+  } satisfies ProviderDef & {
+    provider: 'nominatim' | 'photon'
+    supportsSuggestions: boolean
+  },
 
   routing: {
     driving: {
@@ -76,8 +98,14 @@ export const appConfig = {
 
 /** Estado de proveedores para mostrar en la interfaz con honestidad. */
 export function providerStatuses(): ProviderStatus[] {
+  const basemap = appConfig.basemaps[0]
   const out: ProviderStatus[] = [
-    { id: 'tiles', label: 'Mapa base', isDemo: true, url: appConfig.basemaps[0].tiles[0] ?? '' },
+    {
+      id: 'tiles',
+      label: 'Mapa base',
+      isDemo: true,
+      url: basemap.styleUrl ?? basemap.tiles?.[0] ?? '',
+    },
     { id: 'geocoding', label: 'Búsqueda', isDemo: appConfig.geocoding.isDemo, url: appConfig.geocoding.url },
     {
       id: 'routing-driving',

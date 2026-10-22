@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { MapView } from '../features/map/MapView'
 import { MapControls } from '../features/map/MapControls'
+import { MapDataLayer } from '../features/map/MapDataLayer'
 import { TopBar } from '../features/layout/TopBar'
 import { SidePanel } from '../features/layout/SidePanel'
 import { MobileNav } from '../features/layout/MobileNav'
@@ -27,6 +28,7 @@ export function App() {
   return (
     <div className={styles.shell} id="atlas-root">
       <MapView key={basemapId} />
+      <MapDataLayer />
       <TopBar />
       <SidePanel />
       <ContextPanel />

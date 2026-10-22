@@ -1,0 +1,60 @@
+import {
+  Banknote,
+  Beer,
+  BedDouble,
+  BookOpen,
+  BusFront,
+  Castle,
+  CircleParking,
+  Coffee,
+  CreditCard,
+  Croissant,
+  Dumbbell,
+  Eye,
+  Fuel,
+  Landmark,
+  MapPin,
+  Pill,
+  PlugZap,
+  ShoppingCart,
+  Store,
+  Stethoscope,
+  TrainFront,
+  Trees,
+  UtensilsCrossed,
+} from 'lucide-react'
+import type { PlaceCategoryId } from '../../types/domain'
+
+const ICONS: Record<PlaceCategoryId, typeof MapPin> = {
+  lugar: MapPin,
+  direccion: MapPin,
+  cafeteria: Coffee,
+  restaurante: UtensilsCrossed,
+  bar: Beer,
+  panaderia: Croissant,
+  supermercado: ShoppingCart,
+  farmacia: Pill,
+  hospital: Stethoscope,
+  parque: Trees,
+  jardin: Trees,
+  mirador: Eye,
+  museo: Landmark,
+  monumento: Castle,
+  hotel: BedDouble,
+  banco: Banknote,
+  cajero: CreditCard,
+  gasolinera: Fuel,
+  carga_ev: PlugZap,
+  aparcamiento: CircleParking,
+  estacion: TrainFront,
+  parada_bus: BusFront,
+  biblioteca: BookOpen,
+  deporte: Dumbbell,
+  tienda: Store,
+  otros: MapPin,
+}
+
+export function CategoryIcon({ id, size = 16 }: { id: PlaceCategoryId; size?: number }) {
+  const Icon = ICONS[id] ?? MapPin
+  return <Icon size={size} aria-hidden="true" />
+}

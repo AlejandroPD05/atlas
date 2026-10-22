@@ -48,7 +48,8 @@ export function sanitizeCollections(raw: unknown): SavedCollection[] {
   for (const item of raw) {
     if (typeof item !== 'object' || item === null) continue
     const c = item as Record<string, unknown>
-    if (typeof c.id !== 'string' || typeof c.name !== 'string' || c.name.trim() === '') continue
+    if (typeof c.id !== 'string' || c.id.trim() === '') continue
+    if (typeof c.name !== 'string' || c.name.trim() === '') continue
     const places = Array.isArray(c.places)
       ? c.places.map(sanitizeSavedPlace).filter((p): p is SavedPlace => p !== null)
       : []

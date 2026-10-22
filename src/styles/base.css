@@ -124,14 +124,32 @@ a {
   font-size: 16px;
   padding: 0 6px;
 }
+.maplibregl-ctrl-bottom-right {
+  bottom: 10px !important;
+  right: 10px !important;
+}
 .maplibregl-ctrl-attrib {
-  background: rgba(6, 9, 11, 0.72) !important;
-  color: var(--text-muted);
+  background: rgba(6, 9, 11, 0.86) !important;
+  color: var(--text-secondary);
   font-size: var(--fs-10);
-  border-radius: var(--r-1) 0 0 0;
+  line-height: 1.4;
+  padding: 3px 7px;
+  border-radius: var(--r-1);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  max-width: calc(100vw - 32px);
 }
 .maplibregl-ctrl-attrib a {
   color: var(--text-secondary);
+}
+.maplibregl-ctrl-attrib a:hover {
+  color: var(--text-primary);
+}
+@media (max-width: 860px) {
+  .maplibregl-ctrl-bottom-right {
+    bottom: 80px !important;
+    right: 8px !important;
+  }
 }
 .maplibregl-canvas:focus {
   outline: none;

@@ -59,6 +59,12 @@ export interface Place {
   source: 'osm'
   /** Calidad declarada del registro: nombres y direcciones de OSM = real. */
   quality: DataQuality
+  /** Datos de contacto solo si la fuente los publica. */
+  contact?: {
+    website?: string
+    phone?: string
+    openingHours?: string
+  }
   osm?: {
     type: 'node' | 'way' | 'relation' | string
     id: number

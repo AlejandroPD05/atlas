@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Map } from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
+import './maplibreSetup'
 import { appConfig } from '../../app/config'
 import { useAppStore } from '../../store/appStore'
 import { Button } from '../../components/ui'
-import { styleForBasemap } from './basemap'
+import { addAtlasOverlays, baseStyleForBasemap } from './basemap'
 import { setMapInstance } from './mapInstance'
 import styles from './MapView.module.css'
 
@@ -57,7 +57,7 @@ export function MapView() {
 
     const map = new Map({
       container: el,
-      style: styleForBasemap(def),
+      style: baseStyleForBasemap(def),
       center: initial ? [initial.lng, initial.lat] : [store.viewport.center.lng, store.viewport.center.lat],
       zoom: initial ? initial.zoom : store.viewport.zoom,
       bearing: initial ? initial.bearing : 0,
@@ -65,12 +65,14 @@ export function MapView() {
       maxPitch: 60,
       fadeDuration: 120,
       attributionControl: {
-        compact: true,
+        compact: false,
         customAttribution: 'ATLAS',
       },
     })
 
     map.on('load', () => {
+      /* Las capas propias se añaden después del estilo vectorial. */
+      addAtlasOverlays(map)
       loaded = true
       setFailed(null)
       setMapInstance(map)

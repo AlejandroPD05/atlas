@@ -86,6 +86,7 @@ interface AppState {
   setSearchResults: (r: SearchResult[], fromCategory?: boolean) => void
   setSearchStatus: (s: LoadStatus) => void
   setSearchError: (msg: string | null) => void
+  setSearchFromCategory: (v: boolean) => void
   clearSearch: () => void
   addRecentSearch: (q: string) => void
   clearRecentSearches: () => void
@@ -216,6 +217,7 @@ export const useAppStore = create<AppState>()(
         set({ searchResults: r, searchStatus: 'done', searchError: null, searchFromCategory: fromCategory }),
       setSearchStatus: (s) => set({ searchStatus: s }),
       setSearchError: (msg) => set({ searchError: msg, searchStatus: msg ? 'error' : 'idle' }),
+      setSearchFromCategory: (v) => set({ searchFromCategory: v }),
       clearSearch: () =>
         set({ searchQuery: '', searchResults: [], searchStatus: 'idle', searchError: null, searchFromCategory: false }),
       addRecentSearch: (q) => {
