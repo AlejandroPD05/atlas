@@ -1,9 +1,9 @@
 import type { Feature, FeatureCollection, Point } from 'geojson'
-import { GeoJSONSource } from 'maplibre-gl'
-import type { MapLayerMouseEvent } from 'maplibre-gl'
+import { GeoJSONSource, type MapMouseEvent } from 'maplibre-gl'
 import { useEffect, useRef } from 'react'
 import { useAppStore } from '../../store/appStore'
 import type { Place } from '../../types/domain'
+import { uid } from '../../utils/id'
 import { LAYER, SRC } from './basemap'
 import { useMapInstance } from './mapInstance'
 
@@ -15,18 +15,19 @@ function pointFor(place: Place, selected: boolean): Feature<Point> {
   }
 }
 
-function readId(e: MapLayerMouseEvent): string | null {
-  const props: unknown = e.features?.[0]?.properties
+function readId(feature: { properties?: unknown } | undefined): string | null {
+  const props = feature?.properties
   if (typeof props !== 'object' || props === null) return null
   const id = (props as Record<string, unknown>).id
   return typeof id === 'string' ? id : null
 }
 
-/** Sincroniza resultados de búsqueda y lugar seleccionado con la capa del mapa. */
+/** Sincroniza lugares con el mapa y centraliza los clics sobre el lienzo. */
 export function useMapData(): void {
   const map = useMapInstance()
   const results = useAppStore((s) => s.searchResults)
   const selected = useAppStore((s) => s.selectedPlace)
+  const routePickTarget = useAppStore((s) => s.routePickTarget)
   const lookupRef = useRef<Map<string, Place>>(new Map())
 
   useEffect(() => {
@@ -54,26 +55,63 @@ export function useMapData(): void {
   useEffect(() => {
     if (!map) return
     const canvas = map.getCanvas()
-
-    const onClick = (e: MapLayerMouseEvent) => {
-      const id = readId(e)
-      if (!id) return
-      const place = lookupRef.current.get(id)
-      if (place) useAppStore.getState().selectPlace(place)
-    }
-    const onEnter = () => {
-      canvas.style.cursor = 'pointer'
-    }
-    const onLeave = () => {
+    canvas.style.cursor = routePickTarget ? 'crosshair' : ''
+    return () => {
       canvas.style.cursor = ''
     }
+  }, [map, routePickTarget])
 
-    map.on('click', LAYER.placesDot, onClick)
+  useEffect(() => {
+    if (!map) return
+    const canvas = map.getCanvas()
+
+    const onMapClick = (e: MapMouseEvent) => {
+      const store = useAppStore.getState()
+
+      if (store.routePickTarget) {
+        const coords = { lng: e.lngLat.lng, lat: e.lngLat.lat }
+        const endpoint = {
+          id: uid('endpoint'),
+          kind: store.routePickTarget,
+          label: 'Punto en el mapa',
+          coords,
+        }
+        if (store.routePickTarget === 'origin') store.setRouteOrigin(endpoint)
+        else if (store.routePickTarget === 'destination') store.setRouteDestination(endpoint)
+        else if (store.routeWaypoints.length < 4) store.addRouteWaypoint(endpoint)
+        else {
+          store.pushNotice({
+            kind: 'warn',
+            title: 'Máximo de paradas alcanzado',
+            detail: 'Quita una parada antes de añadir otra. El límite es de 4.',
+          })
+        }
+        store.setRoutePickTarget(null)
+        store.setActiveTab('route')
+        if (window.matchMedia('(max-width: 860px)').matches) store.setMobileSheetOpen(true)
+        return
+      }
+
+      if (!map.getLayer(LAYER.placesDot)) return
+      const hits = map.queryRenderedFeatures(e.point, { layers: [LAYER.placesDot] })
+      const id = readId(hits[0])
+      if (!id) return
+      const place = lookupRef.current.get(id)
+      if (place) store.selectPlace(place)
+    }
+    const onEnter = () => {
+      if (!useAppStore.getState().routePickTarget) canvas.style.cursor = 'pointer'
+    }
+    const onLeave = () => {
+      if (!useAppStore.getState().routePickTarget) canvas.style.cursor = ''
+    }
+
+    map.on('click', onMapClick)
     map.on('mouseenter', LAYER.placesDot, onEnter)
     map.on('mouseleave', LAYER.placesDot, onLeave)
 
     return () => {
-      map.off('click', LAYER.placesDot, onClick)
+      map.off('click', onMapClick)
       map.off('mouseenter', LAYER.placesDot, onEnter)
       map.off('mouseleave', LAYER.placesDot, onLeave)
       canvas.style.cursor = ''

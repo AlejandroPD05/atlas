@@ -34,6 +34,9 @@ import {
    ═══════════════════════════════════════════════════════════════ */
 
 export type PanelTab = 'search' | 'route' | 'explore' | 'saved'
+
+/** Punto de ruta que se está eligiendo sobre el mapa. */
+export type RoutePickTarget = 'origin' | 'destination' | 'waypoint'
 export type LoadStatus = 'idle' | 'loading' | 'done' | 'error'
 export type LocationStatus = 'idle' | 'requesting' | 'granted' | 'denied' | 'error'
 
@@ -105,12 +108,14 @@ interface AppState {
   routeError: string | null
   routePlan: RoutePlan | null
   routeAlternatives: RoutePlan[]
+  routePickTarget: RoutePickTarget | null
   setRouteOrigin: (e: RouteEndpoint | null) => void
   setRouteDestination: (e: RouteEndpoint | null) => void
   swapRouteEndpoints: () => void
   addRouteWaypoint: (e: RouteEndpoint) => void
   removeRouteWaypoint: (id: string) => void
   moveRouteWaypoint: (from: number, to: number) => void
+  setRoutePickTarget: (target: RoutePickTarget | null) => void
   setTravelMode: (m: TravelMode) => void
   setRoutePreference: (p: RoutePreference) => void
   setRouteStatus: (s: LoadStatus) => void
@@ -173,7 +178,12 @@ export const useAppStore = create<AppState>()(
       mobileSheetOpen: false,
       settingsOpen: false,
       basemapId: 'dark',
-      setActiveTab: (tab) => set({ activeTab: tab, mobileSheetOpen: false }),
+      setActiveTab: (tab) =>
+        set((s) => ({
+          activeTab: tab,
+          mobileSheetOpen: false,
+          ...(tab !== 'route' && s.routePickTarget ? { routePickTarget: null } : {}),
+        })),
       toggleSideCollapsed: () => set((s) => ({ sideCollapsed: !s.sideCollapsed })),
       setMobileSheetOpen: (open) => set({ mobileSheetOpen: open }),
       setSettingsOpen: (open) => set({ settingsOpen: open }),
@@ -243,6 +253,7 @@ export const useAppStore = create<AppState>()(
       routeError: null,
       routePlan: null,
       routeAlternatives: [],
+      routePickTarget: null,
       setRouteOrigin: (e) => set({ routeOrigin: e }),
       setRouteDestination: (e) => set({ routeDestination: e }),
       swapRouteEndpoints: () =>
@@ -263,6 +274,7 @@ export const useAppStore = create<AppState>()(
           list.splice(to, 0, moved)
           return { routeWaypoints: list }
         }),
+      setRoutePickTarget: (target) => set({ routePickTarget: target }),
       setTravelMode: (m) => set({ travelMode: m, routePlan: null, routeAlternatives: [], routeStatus: 'idle', routeError: null }),
       setRoutePreference: (p) => set({ routePreference: p }),
       setRouteStatus: (s) => set({ routeStatus: s }),
@@ -280,6 +292,7 @@ export const useAppStore = create<AppState>()(
           routeAlternatives: [],
           routeStatus: 'idle',
           routeError: null,
+          routePickTarget: null,
         }),
 
       /* ── Explorar ── */

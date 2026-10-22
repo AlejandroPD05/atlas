@@ -34,6 +34,8 @@ export const LAYER = {
   routeGlow: 'atlas-route-glow',
   routeCasing: 'atlas-route-casing',
   routeLine: 'atlas-route-line',
+  routePointsHalo: 'atlas-route-points-halo',
+  routePoints: 'atlas-route-points',
 } as const
 
 function emptyFC(): FeatureCollection {
@@ -161,6 +163,51 @@ function overlayLayers(): LayerSpecification[] {
         'circle-radius': ['case', ['==', ['get', 'selected'], true], 6.5, 4.5],
         'circle-stroke-color': 'rgba(6, 12, 14, 0.9)',
         'circle-stroke-width': 1.5,
+      },
+    },
+    /* Puntos de ruta al final: deben quedar por encima del lugar seleccionado. */
+    {
+      id: LAYER.routePointsHalo,
+      type: 'circle',
+      source: SRC.route,
+      filter: ['==', ['geometry-type'], 'Point'],
+      paint: {
+        'circle-color': [
+          'match',
+          ['get', 'role'],
+          'origin',
+          '#5be49b',
+          'destination',
+          '#f0b95a',
+          'waypoint',
+          '#e9f2f1',
+          '#3fe0c8',
+        ],
+        'circle-radius': 13,
+        'circle-opacity': 0.18,
+        'circle-blur': 0.35,
+      },
+    },
+    {
+      id: LAYER.routePoints,
+      type: 'circle',
+      source: SRC.route,
+      filter: ['==', ['geometry-type'], 'Point'],
+      paint: {
+        'circle-color': [
+          'match',
+          ['get', 'role'],
+          'origin',
+          '#5be49b',
+          'destination',
+          '#f0b95a',
+          'waypoint',
+          '#e9f2f1',
+          '#3fe0c8',
+        ],
+        'circle-radius': ['match', ['get', 'role'], 'waypoint', 5, 7],
+        'circle-stroke-color': 'rgba(6, 12, 14, 0.95)',
+        'circle-stroke-width': 2,
       },
     },
   ]
