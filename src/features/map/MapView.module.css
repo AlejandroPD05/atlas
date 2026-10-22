@@ -1,0 +1,50 @@
+.wrap {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-map);
+  background: var(--bg-app);
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+}
+
+.fail {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-popover);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 40px));
+  padding: 18px 20px;
+  border-radius: var(--r-2);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-panel-solid);
+  box-shadow: var(--shadow-pop);
+  text-align: center;
+}
+
+.failTitle {
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+
+.failHint {
+  font-size: var(--fs-12);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.failDetail {
+  font-family: var(--font-mono);
+  font-size: var(--fs-10);
+  line-height: 1.5;
+  color: var(--text-faint);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,189 @@
+.panel {
+  position: absolute;
+  top: calc(12px + var(--topbar-h) + 12px);
+  left: 12px;
+  bottom: 12px;
+  z-index: var(--z-panel);
+  display: flex;
+  flex-direction: column;
+  width: var(--panel-w);
+  border-radius: var(--r-3);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-panel);
+  backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+  transition: width var(--dur-3) var(--ease-out);
+}
+
+.collapsed {
+  width: var(--panel-w-rail);
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--divider);
+  flex: none;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 8px 4px;
+  border-radius: var(--r-1);
+  color: var(--text-muted);
+  font-size: var(--fs-11);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+
+.tab:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.tabActive {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.tabLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collapse {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 32px;
+  margin-left: 2px;
+  border-radius: var(--r-1);
+  color: var(--text-muted);
+}
+
+.collapse:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.collapsed .tabs {
+  flex-direction: column;
+  padding: 8px 6px;
+}
+
+.collapsed .tab {
+  width: 100%;
+  flex: none;
+  padding: 10px 0;
+}
+
+.collapsed .tabLabel {
+  display: none;
+}
+
+.collapsed .collapse {
+  margin: 4px 0 0;
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--divider);
+  flex: none;
+}
+
+.footerLink {
+  font-size: var(--fs-11);
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.footerLink:hover {
+  color: var(--text-primary);
+}
+
+.footerSpacer {
+  flex: 1;
+}
+
+/* ── Móvil: bottom sheet ── */
+
+.sheet {
+  position: fixed;
+  left: 8px;
+  right: 8px;
+  bottom: 76px;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  max-height: min(72vh, 600px);
+  border-radius: var(--r-3);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-panel-solid);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+  animation: sheetIn var(--dur-3) var(--ease-out);
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 4px;
+  border-bottom: 1px solid var(--divider);
+  position: relative;
+  flex: none;
+}
+
+.handle {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.sheetTabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  margin-top: 8px;
+}
+
+.sheetTabs > * {
+  flex: 1;
+}

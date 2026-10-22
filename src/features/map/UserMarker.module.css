@@ -1,0 +1,37 @@
+.marker {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
+
+.dot {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #58a6ff;
+  border: 2px solid rgba(233, 242, 241, 0.92);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: rgba(88, 166, 255, 0.28);
+  animation: userPulse 2.4s var(--ease-out) infinite;
+}
+
+@keyframes userPulse {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}

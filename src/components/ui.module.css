@@ -1,0 +1,316 @@
+/* ═══ Botones ═══ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--r-1);
+  border: 1px solid transparent;
+  padding: 8px 12px;
+  font-size: var(--fs-13);
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btnLabel {
+  display: inline-block;
+}
+
+.btnIcon {
+  display: inline-flex;
+  flex: none;
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+.primary:hover:not(:disabled) {
+  background: var(--accent-hi);
+}
+
+.outline {
+  background: transparent;
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+.outline:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.ghost:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.danger {
+  background: var(--danger-wash);
+  border-color: rgba(255, 111, 97, 0.3);
+  color: var(--danger);
+}
+.danger:hover:not(:disabled) {
+  background: rgba(255, 111, 97, 0.2);
+}
+
+.btnSmall {
+  padding: 5px 9px;
+  font-size: var(--fs-12);
+}
+
+.btnFull {
+  width: 100%;
+}
+
+/* ═══ IconButton ═══ */
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-1);
+  color: var(--text-secondary);
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+
+.iconBtn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.iconBtn[aria-pressed='true'] {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.iconBtnLg {
+  width: 40px;
+  height: 40px;
+}
+
+.iconBtnSolid {
+  background: var(--surface-panel-solid);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-control);
+  color: var(--text-primary);
+}
+.iconBtnSolid:hover:not(:disabled) {
+  background: var(--surface-raised);
+}
+
+/* ═══ Chips ═══ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-size: var(--fs-10);
+  font-weight: 600;
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.chipDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.chip_neutral {
+  color: var(--text-muted);
+}
+
+.chip_accent {
+  color: var(--accent);
+  border-color: rgba(63, 224, 200, 0.35);
+  background: var(--accent-wash);
+}
+
+.chip_ok {
+  color: var(--ok);
+  border-color: rgba(87, 224, 137, 0.32);
+  background: var(--ok-wash);
+}
+
+.chip_warn {
+  color: var(--warn);
+  border-color: rgba(240, 185, 90, 0.32);
+  background: var(--warn-wash);
+}
+
+.chip_danger {
+  color: var(--danger);
+  border-color: rgba(255, 111, 97, 0.32);
+  background: var(--danger-wash);
+}
+
+.chip_info {
+  color: var(--info);
+  border-color: rgba(116, 185, 255, 0.32);
+  background: var(--info-wash);
+}
+
+.chip_unknown {
+  color: var(--unknown);
+  border-color: rgba(143, 163, 168, 0.3);
+  background: var(--unknown-wash);
+}
+
+/* ═══ Estados ═══ */
+
+.spinner {
+  display: inline-block;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  border-top-color: var(--accent);
+  animation: atlasSpin 800ms linear infinite;
+  flex: none;
+}
+
+@keyframes atlasSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 30px 18px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-muted);
+}
+
+.emptyTitle {
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.emptyHint {
+  max-width: 32ch;
+  font-size: var(--fs-12);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* ═══ Campos ═══ */
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 10px;
+  display: flex;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: var(--r-1);
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-input);
+  color: var(--text-primary);
+  font-size: var(--fs-13);
+  transition:
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+
+.input::placeholder {
+  color: var(--text-faint);
+}
+
+.input:hover {
+  border-color: var(--border-strong);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-ring);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.inputWithIcon {
+  padding-left: 32px;
+}
+
+.inputWithTrailing {
+  padding-right: 32px;
+}
+
+.inputTrailing {
+  position: absolute;
+  right: 4px;
+  display: flex;
+  align-items: center;
+}
+
+/* ═══ Eyebrow ═══ */
+
+.eyebrow {
+  font-size: var(--fs-10);
+  font-weight: 650;
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}

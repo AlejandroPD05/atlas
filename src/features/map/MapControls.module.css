@@ -1,0 +1,161 @@
+.controls {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: var(--z-map-ui);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: left var(--dur-3) var(--ease-out);
+}
+
+.shifted {
+  left: calc(12px + var(--panel-w) + 12px);
+}
+
+.shiftedCollapsed {
+  left: calc(12px + var(--panel-w-rail) + 12px);
+}
+
+@media (max-width: 860px) {
+  .controls,
+  .shifted,
+  .shiftedCollapsed {
+    left: 12px;
+    bottom: 84px;
+  }
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--r-2);
+  border: 1px solid var(--border-subtle);
+  background: rgba(11, 18, 22, 0.88);
+  box-shadow: var(--shadow-control);
+  backdrop-filter: blur(10px);
+}
+
+.btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: var(--text-secondary);
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn + .btn {
+  border-top: 1px solid var(--divider);
+}
+
+/* ── Panel de capas ── */
+
+.pop {
+  position: absolute;
+  left: calc(100% + 10px);
+  bottom: 0;
+  width: 216px;
+  padding: 10px;
+  border-radius: var(--r-2);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-panel-solid);
+  box-shadow: var(--shadow-pop);
+  z-index: var(--z-popover);
+  animation: popIn var(--dur-2) var(--ease-out);
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+
+@media (max-width: 860px) {
+  .pop {
+    left: 0;
+    bottom: calc(100% + 10px);
+  }
+  @keyframes popIn {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+}
+
+.popLabel {
+  margin: 2px 6px 6px;
+  font-size: var(--fs-10);
+  font-weight: 650;
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.layerItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: var(--r-1);
+  font-size: var(--fs-13);
+  color: var(--text-secondary);
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+.layerItem:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.layerItem[aria-checked='true'] {
+  color: var(--accent);
+}
+
+.popDivider {
+  height: 1px;
+  margin: 8px 6px;
+  background: var(--divider);
+}
+
+.popToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--r-1);
+  font-size: var(--fs-13);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.popToggle:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.popToggle input {
+  accent-color: var(--accent);
+}
+
+.popHint {
+  margin: 8px 6px 2px;
+  font-size: var(--fs-10);
+  color: var(--text-faint);
+}

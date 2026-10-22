@@ -1,0 +1,112 @@
+/* ═══════════════════════════════════════════════════════════════
+   ATLAS · Design tokens
+   Lenguaje visual: grafito azulado profundo, acento cian eléctrico,
+   superficies flotantes con bordes hairline, jerarquía tipográfica fuerte.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  color-scheme: dark;
+
+  /* ── Superficies ── */
+  --bg-app: #06090b;
+  --surface-panel: rgba(9, 14, 17, 0.86);
+  --surface-panel-solid: #0b1216;
+  --surface-2: #10191e;
+  --surface-3: #16212638;
+  --surface-raised: #152027;
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  --surface-active: rgba(255, 255, 255, 0.09);
+  --surface-input: rgba(255, 255, 255, 0.045);
+
+  /* ── Bordes ── */
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --divider: rgba(255, 255, 255, 0.05);
+
+  /* ── Texto ── */
+  --text-primary: #e9f2f1;
+  --text-secondary: #a3b5b4;
+  --text-muted: #647a7c;
+  --text-faint: #46585b;
+  --text-on-accent: #032420;
+
+  /* ── Acento (cian eléctrico) ── */
+  --accent: #3fe0c8;
+  --accent-hi: #74f0dc;
+  --accent-deep: #169e8c;
+  --accent-wash: rgba(63, 224, 200, 0.12);
+  --accent-wash-strong: rgba(63, 224, 200, 0.22);
+  --accent-ring: rgba(63, 224, 200, 0.55);
+  --accent-glow: rgba(63, 224, 200, 0.35);
+
+  /* ── Semánticos ── */
+  --ok: #57e089;
+  --ok-wash: rgba(87, 224, 137, 0.12);
+  --warn: #f0b95a;
+  --warn-wash: rgba(240, 185, 90, 0.13);
+  --danger: #ff6f61;
+  --danger-wash: rgba(255, 111, 97, 0.13);
+  --info: #74b9ff;
+  --info-wash: rgba(116, 185, 255, 0.12);
+  --unknown: #8fa3a8;
+  --unknown-wash: rgba(143, 163, 168, 0.12);
+
+  /* ── Tipografía ── */
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Space Grotesk', var(--font-sans);
+  --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', Consolas, monospace;
+
+  --fs-10: 0.625rem;
+  --fs-11: 0.6875rem;
+  --fs-12: 0.75rem;
+  --fs-13: 0.8125rem;
+  --fs-14: 0.875rem;
+  --fs-15: 0.9375rem;
+  --fs-17: 1.0625rem;
+  --fs-20: 1.25rem;
+  --fs-26: 1.625rem;
+  --fs-34: 2.125rem;
+
+  --ls-caps: 0.09em;
+  --ls-wide: 0.18em;
+
+  /* ── Espaciado ── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* ── Radios (sobrios) ── */
+  --r-1: 6px;
+  --r-2: 10px;
+  --r-3: 14px;
+
+  /* ── Sombras ── */
+  --shadow-panel: 0 16px 44px rgba(0, 0, 0, 0.52), 0 2px 10px rgba(0, 0, 0, 0.4);
+  --shadow-pop: 0 10px 30px rgba(0, 0, 0, 0.55);
+  --shadow-control: 0 4px 18px rgba(0, 0, 0, 0.45);
+
+  /* ── Movimiento ── */
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 340ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.45, 0, 0.55, 1);
+
+  /* ── Layout ── */
+  --topbar-h: 56px;
+  --panel-w: 384px;
+  --panel-w-rail: 60px;
+  --context-w: 344px;
+
+  /* ── Z ── */
+  --z-map: 0;
+  --z-map-ui: 10;
+  --z-panel: 20;
+  --z-popover: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+}
