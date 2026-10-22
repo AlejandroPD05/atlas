@@ -28,6 +28,7 @@ export const SRC = {
 
 export const LAYER = {
   poisCluster: 'atlas-pois-cluster',
+  poisClusterCount: 'atlas-pois-cluster-count',
   poisDot: 'atlas-pois-dot',
   placesHalo: 'atlas-places-halo',
   placesDot: 'atlas-places-dot',
@@ -132,6 +133,23 @@ function overlayLayers(): LayerSpecification[] {
       },
     },
     {
+      id: LAYER.poisClusterCount,
+      type: 'symbol',
+      source: SRC.pois,
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': ['get', 'point_count_abbreviated'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': 11,
+        'text-allow-overlap': true,
+      },
+      paint: {
+        'text-color': '#f7e9c8',
+        'text-halo-color': 'rgba(6, 12, 14, 0.92)',
+        'text-halo-width': 1.5,
+      },
+    },
+    {
       id: LAYER.poisDot,
       type: 'circle',
       source: SRC.pois,
@@ -218,7 +236,10 @@ export function addAtlasOverlays(map: MapLibreMap): void {
   for (const [id, spec] of overlaySources()) {
     if (!map.getSource(id)) map.addSource(id, spec)
   }
+  const hasGlyphs = Boolean(map.getStyle().glyphs)
   for (const layer of overlayLayers()) {
+    // Sin glifos (estilo raster propio) no se pueden pintar etiquetas.
+    if (layer.type === 'symbol' && !hasGlyphs) continue
     if (!map.getLayer(layer.id)) map.addLayer(layer)
   }
 }

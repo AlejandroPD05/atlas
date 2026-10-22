@@ -187,3 +187,16 @@
 .sheetTabs > * {
   flex: 1;
 }
+
+@media (max-width: 420px) {
+  .sheetTabs .tab {
+    gap: 2px;
+    padding: 8px 0;
+    font-size: 10px;
+  }
+
+  .sheetTabs .tab svg {
+    width: 13px;
+    height: 13px;
+  }
+}

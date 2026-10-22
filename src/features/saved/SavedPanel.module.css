@@ -1,0 +1,251 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 12px 24px;
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--fs-22);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.total {
+  display: inline-grid;
+  place-items: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 6px;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-secondary);
+  font-size: var(--fs-11);
+  font-variant-numeric: tabular-nums;
+}
+
+.intro {
+  font-size: var(--fs-12);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.createForm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.createForm > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.collections {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.collection {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-2);
+  background: rgba(255, 255, 255, 0.018);
+  overflow: hidden;
+}
+
+.collectionHead {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 3px;
+}
+
+.collectionToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+  padding: 6px 4px;
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.collectionToggle > svg:first-child {
+  flex: none;
+  color: var(--text-muted);
+}
+
+.folderIcon {
+  flex: none;
+  color: var(--poi);
+}
+
+.collectionName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-13);
+  font-weight: 600;
+}
+
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--text-muted);
+  font-size: var(--fs-10);
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.collectionActions,
+.placeActions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex: none;
+}
+
+.smallAction {
+  width: 26px;
+  height: 26px;
+}
+
+.inlineForm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 0 7px 8px;
+}
+
+.inlineForm > div {
+  flex: 1;
+  min-width: 130px;
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0 7px 8px;
+  padding: 8px;
+  border-radius: var(--r-1);
+  border: 1px solid rgba(240, 109, 109, 0.26);
+  background: rgba(240, 109, 109, 0.055);
+  color: var(--text-secondary);
+  font-size: var(--fs-11);
+  line-height: 1.45;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 5px;
+}
+
+.emptyCollection {
+  padding: 2px 9px 10px;
+  color: var(--text-muted);
+  font-size: var(--fs-11);
+  line-height: 1.5;
+}
+
+.places {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0 4px 5px;
+  list-style: none;
+}
+
+.placeRow {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: var(--r-1);
+}
+
+.placeRow:hover {
+  background: var(--surface-hover);
+}
+
+.placeMain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  padding: 7px 4px;
+  text-align: left;
+}
+
+.placeIcon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 999px;
+  background: rgba(240, 185, 90, 0.08);
+  color: var(--poi);
+}
+
+.placeText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.placeName,
+.placeSub {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeName {
+  font-size: var(--fs-12);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.placeSub {
+  font-size: var(--fs-10);
+  color: var(--text-muted);
+}
+
+.chevron {
+  flex: none;
+  color: var(--text-muted);
+}
+
+.footnote {
+  padding-top: 2px;
+  font-size: var(--fs-10);
+  line-height: 1.5;
+  color: var(--text-muted);
+}

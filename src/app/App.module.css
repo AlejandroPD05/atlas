@@ -4,3 +4,24 @@
   overflow: hidden;
   background: var(--bg-app);
 }
+
+.mapFallback {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-map);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(63, 224, 200, 0.035), transparent 55%),
+    var(--bg-app);
+}
+
+.mapFallbackLabel {
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: rgba(10, 18, 20, 0.7);
+  color: var(--text-muted);
+  font-size: var(--fs-11);
+  letter-spacing: 0.04em;
+}
