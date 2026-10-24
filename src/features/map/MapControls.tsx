@@ -183,7 +183,10 @@ export function MapControls() {
               className={styles.layerItem}
               onClick={() => setBasemapId(b.id)}
             >
-              <span>{b.label}</span>
+              <span className={styles.layerText}>
+                <span>{b.label}</span>
+                {b.hint && <span className={styles.layerHint}>{b.hint}</span>}
+              </span>
               {basemapId === b.id && <Check size={14} />}
             </button>
           ))}
@@ -196,7 +199,7 @@ export function MapControls() {
             />
             <span>Puntos de interés</span>
           </label>
-          <p className={styles.popHint}>Datos © OpenStreetMap contributors</p>
+          <p className={styles.popHint}>Atribución de datos e imágenes visible en el mapa</p>
         </div>
       )}
     </div>

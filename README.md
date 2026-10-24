@@ -6,7 +6,7 @@ ATLAS no inventa datos. Cuando un perfil, un horario o una accesibilidad no se p
 
 ## Qué incluye
 
-- **Mapa navegable** con MapLibre GL, estilos vectoriales de OpenFreeMap (oscuro y claro) y atribución visible. También acepta teselas raster propias.
+- **Mapa satelital realista por defecto**: imagen real del mundo, etiquetas, relieve 3D, cielo y perspectiva cinematográfica con MapLibre GL. Incluye estilos vectoriales de OpenFreeMap (oscuro y claro) como alternativas y acepta teselas propias.
 - **Búsqueda de lugares** con Nominatim (una petición por segundo, sin autocompletado) o Photon opcional (con sugerencias). Incluye cancelación de peticiones, estados de carga, vacío y error.
 - **Ficha de lugar** con dirección, coordenadas, contacto publicado en OSM, enlace al registro original, centrado en el mapa, guardado y acciones de ruta.
 - **Planificador de rutas** con origen, destino y hasta cuatro paradas reordenables. Permite elegir puntos sobre el mapa, borrar puntos y comparar alternativas reales de OSRM.
@@ -23,7 +23,10 @@ ATLAS no inventa datos. Cuando un perfil, un horario o una accesibilidad no se p
 | Dato | Origen | Estado |
 | --- | --- | --- |
 | Lugares, direcciones y POI | OpenStreetMap (Nominatim, Photon u Overpass) | Real, con la disponibilidad del servicio público |
-| Mapa base | OpenFreeMap / OpenMapTiles / OSM | Real; atribución en el mapa |
+| Mapa base satelital | Esri World Imagery + etiquetas OpenFreeMap + AWS Terrain Tiles | Imagen real; atribución en el mapa |
+| Etiquetas sobre satélite | OpenFreeMap / OpenMapTiles / OpenStreetMap | Reales; se dibujan como capas vectoriales propias |
+| Relieve 3D | Modelo digital de elevación (DEM) | Real; la inclinación y el terreno dependen del DEM |
+| Mapas vectoriales alternativos | OpenFreeMap / OpenMapTiles / OSM | Reales; atribución en el mapa |
 | Ruta más rápida y alternativa | OSRM | Real; la alternativa solo existe si OSRM la devuelve |
 | Tráfico, peajes, combustible, ruido, accesibilidad, horarios de apertura | — | **Desconocido**. No se estima ni se inventa |
 | Perfiles económico, tranquilo, escénico, accesible y explorar | — | **No disponibles** con los datos actuales |
@@ -62,11 +65,18 @@ El proyecto no contiene claves ni secretos. Copia `.env.example` a `.env` solo s
 
 | Variable | Uso | Valor por defecto |
 | --- | --- | --- |
+| `VITE_STYLE_SATELLITE_URL` | Estilo satelital completo (sustituye a las teselas) | — |
+| `VITE_TILES_SATELLITE_URL` | Teselas de imagen satelital | Esri World Imagery |
+| `VITE_TILES_SATELLITE_ATTRIBUTION` | Atribución de la imagen satelital | Esri / Maxar / Earthstar |
+| `VITE_TILES_SATELLITE_LABELS_URL` | Etiquetas raster opcionales sobre satélite | Etiquetas vectoriales de OpenFreeMap |
+| `VITE_TILES_SATELLITE_LABELS_ATTRIBUTION` | Atribución de esas etiquetas raster | — |
+| `VITE_TERRAIN_DEM_URL` | Teselas DEM para el relieve 3D | AWS Terrain Tiles (Terrarium) |
+| `VITE_TERRAIN_ATTRIBUTION` | Atribución del relieve | Mapzen / AWS |
 | `VITE_STYLE_DARK_URL` | Estilo vectorial oscuro | `https://tiles.openfreemap.org/styles/dark` |
 | `VITE_STYLE_LIGHT_URL` | Estilo vectorial claro | `https://tiles.openfreemap.org/styles/positron` |
 | `VITE_TILES_DARK_URL` | Teselas raster oscuras (prioritarias) | — |
 | `VITE_TILES_LIGHT_URL` | Teselas raster claras (prioritarias) | — |
-| `VITE_TILES_ATTRIBUTION` | Atribución de teselas propias | `© OpenStreetMap contributors` |
+| `VITE_TILES_ATTRIBUTION` | Atribución de teselas vectoriales propias | `© OpenStreetMap contributors` |
 | `VITE_GEOCODING_PROVIDER` | `nominatim` o `photon` | `nominatim` |
 | `VITE_GEOCODING_URL` | Servidor de geocodificación | Nominatim público |
 | `VITE_ROUTING_URL` | OSRM para coche | `https://router.project-osrm.org` |
@@ -86,9 +96,11 @@ npm run build
 
 Estado comprobado en esta versión:
 
-- 57 pruebas en 10 archivos, todas pasando.
+- 59 pruebas en 11 archivos, todas pasando.
 - `tsc --noEmit`, ESLint y build de producción pasando.
-- MapLibre se carga en un chunk diferido; el bundle inicial queda en ~339 kB (106 kB gzip). El chunk de MapLibre (~1,06 MB, 288 kB gzip) y su worker (518 kB) solo se descargan para el mapa.
+- MapLibre se carga en un chunk diferido; el bundle inicial queda en ~340 kB (106 kB gzip). El chunk de MapLibre (~1,06 MB, 288 kB gzip) y su worker (518 kB) solo se descargan para el mapa.
+- Verificado en navegador de escritorio: mapa satelital con etiquetas vectoriales, atribución completa y cambio Satélite / Oscuro / Claro. El relieve 3D se comprobó en zona montañosa.
+- Verificado en navegador móvil (390×844): mapa satelital, atribución compacta que no tapa los controles, selector de capas, bottom sheet de búsqueda y planificador.
 - Verificado en navegador: clustering de POI, contador de grupo, expansión al pulsar, selección de un punto, visibilidad de la capa, guardado de un lugar, ficha, ruta desde un guardado, renombrar y eliminar colecciones.
 
 El aviso de Vite sobre el tamaño del chunk de MapLibre es esperado: es una librería grande que se descarga de forma diferida y no forma parte del arranque inicial de la interfaz.
@@ -118,7 +130,10 @@ src/
 
 ## Atribución
 
-- Mapa base: [OpenFreeMap](https://openfreemap.org) · © OpenMapTiles · Datos © OpenStreetMap contributors.
+- Imagen satelital: [Esri World Imagery](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9) · © Esri, Maxar, Earthstar Geographics y la comunidad de usuarios SIG.
+- Etiquetas sobre satélite: [OpenFreeMap](https://openfreemap.org) · © OpenMapTiles · © OpenStreetMap contributors.
+- Relieve: [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) · datos de Mapzen.
+- Mapa vectorial alternativo: [OpenFreeMap](https://openfreemap.org) · © OpenMapTiles · Datos © OpenStreetMap contributors.
 - Datos geográficos: © OpenStreetMap contributors, disponibles bajo ODbL.
 - Routing: [OSRM](https://project-osrm.org).
 - Geocodificación: [Nominatim](https://nominatim.org) o [Photon](https://photon.komoot.io).
@@ -136,3 +151,5 @@ La referencia visual de este proyecto es solo estética. No se ha copiado códig
 - Los horarios, teléfonos y webs de las fichas solo aparecen si OSM los publica; no se verifican.
 - La capa de POI no se refresca automáticamente al mover el mapa: hay que pulsar «Buscar aquí» en Explorar.
 - El mapa no está pensado como navegación giro a giro en tiempo real; no hay voz, tráfico en vivo ni recálculo por desvío.
+- El modo satelital usa imagen 2D proyectada sobre un DEM. No es fotogrametría 3D global: para edificios y ciudades fotorrealistas en 3D hace falta un proveedor licenciado con clave (por ejemplo, Google Photorealistic 3D Tiles o un estilo satelital 3D de MapTiler/Mapbox) y asumir sus costes y términos.
+- Esri World Imagery, OpenFreeMap y AWS Terrain Tiles se usan aquí como servicios públicos de demostración, con atribución visible. Para producción hay que revisar sus licencias y configurar un proveedor propio con `VITE_STYLE_SATELLITE_URL` o las variables `VITE_TILES_SATELLITE_*`.

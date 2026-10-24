@@ -14,7 +14,7 @@ import type {
   TravelMode,
   UserPreferences,
 } from '../types/domain'
-import { appConfig } from '../app/config'
+import { appConfig, type BasemapId } from '../app/config'
 import { uid } from '../utils/id'
 import {
   DEFAULT_COLLECTIONS,
@@ -53,12 +53,12 @@ interface AppState {
   sideCollapsed: boolean
   mobileSheetOpen: boolean
   settingsOpen: boolean
-  basemapId: 'dark' | 'light'
+  basemapId: BasemapId
   setActiveTab: (tab: PanelTab) => void
   toggleSideCollapsed: () => void
   setMobileSheetOpen: (open: boolean) => void
   setSettingsOpen: (open: boolean) => void
-  setBasemapId: (id: 'dark' | 'light') => void
+  setBasemapId: (id: BasemapId) => void
 
   /* ── Avisos no bloqueantes ── */
   notices: Notice[]
@@ -177,7 +177,7 @@ export const useAppStore = create<AppState>()(
       sideCollapsed: false,
       mobileSheetOpen: false,
       settingsOpen: false,
-      basemapId: 'dark',
+      basemapId: 'satellite',
       setActiveTab: (tab) =>
         set((s) => ({
           activeTab: tab,

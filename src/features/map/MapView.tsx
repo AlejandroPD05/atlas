@@ -8,7 +8,7 @@ import { addAtlasOverlays, baseStyleForBasemap } from './basemap'
 import { setMapInstance } from './mapInstance'
 import styles from './MapView.module.css'
 
-const SESSION_KEY = 'atlas.viewport'
+const SESSION_KEY = 'atlas.viewport.v2'
 
 interface SessionViewport {
   lng: number
@@ -59,15 +59,25 @@ export function MapView() {
       container: el,
       style: baseStyleForBasemap(def),
       center: initial ? [initial.lng, initial.lat] : [store.viewport.center.lng, store.viewport.center.lat],
-      zoom: initial ? initial.zoom : store.viewport.zoom,
+      zoom: initial ? initial.zoom : (def.defaultZoom ?? store.viewport.zoom),
       bearing: initial ? initial.bearing : 0,
-      pitch: initial ? initial.pitch : 0,
-      maxPitch: 60,
+      pitch: initial ? initial.pitch : (def.defaultPitch ?? 0),
+      maxPitch: 85,
       fadeDuration: 120,
       attributionControl: {
-        compact: false,
+        /* En móvil la atribución completa tapa los controles; se pliega
+           en un botón y sigue disponible al pulsarlo. */
+        compact: window.matchMedia('(max-width: 860px)').matches,
         customAttribution: 'ATLAS',
       },
+    })
+
+    /* MapLibre crea la atribución compacta ya desplegada; en móvil se
+       deja plegada para no tapar los controles del mapa. */
+    requestAnimationFrame(() => {
+      el.querySelector<HTMLElement>('.maplibregl-ctrl-attrib.maplibregl-compact')?.classList.remove(
+        'maplibregl-compact-show',
+      )
     })
 
     map.on('load', () => {

@@ -6,14 +6,30 @@ import type { LngLat, ProviderStatus } from '../types/domain'
    servicios públicos de DEMO (con límites de uso y sin SLA).
    ═══════════════════════════════════════════════════════════════ */
 
+export type BasemapId = 'satellite' | 'dark' | 'light'
+
 export interface BasemapDef {
-  id: 'dark' | 'light'
+  id: BasemapId
   label: string
+  /** Descripción breve que se muestra en el selector de capas. */
+  hint?: string
   /** URL de un estilo vectorial completo (por defecto, OpenFreeMap). */
   styleUrl?: string
   /** Teselas raster propias; si existen, sustituyen al estilo vectorial. */
   tiles?: string[]
   attribution?: string
+  /** Etiquetas raster transparentes que se superponen a la imagen satelital. */
+  labelTiles?: string[]
+  labelAttribution?: string
+  /** Etiquetas vectoriales propias (OpenFreeMap) sobre la imagen satelital. */
+  vectorLabels?: boolean
+  /** Modelo digital de elevación para relieve en 3D. */
+  terrainTiles?: string[]
+  terrainAttribution?: string
+  /** Inclinación inicial recomendada para este mapa base. */
+  defaultPitch?: number
+  /** Zoom inicial recomendado para este mapa base. */
+  defaultZoom?: number
 }
 
 export interface ProviderDef {
@@ -23,9 +39,33 @@ export interface ProviderDef {
 
 const env = import.meta.env
 
-/* Mapa base: OpenFreeMap (vectorial, gratuito, sin clave) por defecto.
-   Atribución obligatoria incluida en su TileJSON. Si se configuran teselas
-   raster propias (VITE_TILES_*), se usan en su lugar. */
+/* Mapa base realista: imagen satelital + etiquetas + relieve 3D.
+   Esri World Imagery, OpenFreeMap y AWS Terrain Tiles son servicios
+   públicos de DEMO, sin clave. Para producción, configura un estilo
+   propio con VITE_STYLE_SATELLITE_URL o tus propias teselas con
+   VITE_TILES_SATELLITE_URL. */
+const satelliteTiles = env.VITE_TILES_SATELLITE_URL
+  ? [env.VITE_TILES_SATELLITE_URL]
+  : ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}']
+const satelliteAttribution =
+  env.VITE_TILES_SATELLITE_ATTRIBUTION ??
+  'Imágenes © Esri, Maxar, Earthstar Geographics y la comunidad de usuarios SIG'
+
+const satelliteLabelTiles = env.VITE_TILES_SATELLITE_LABELS_URL
+  ? [env.VITE_TILES_SATELLITE_LABELS_URL]
+  : null
+const satelliteLabelAttribution =
+  env.VITE_TILES_SATELLITE_LABELS_ATTRIBUTION ?? 'Etiquetas © Tu proveedor · © OpenStreetMap contributors'
+
+const terrainTiles = env.VITE_TERRAIN_DEM_URL
+  ? [env.VITE_TERRAIN_DEM_URL]
+  : ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png']
+const terrainAttribution = env.VITE_TERRAIN_ATTRIBUTION ?? 'Relieve: Mapzen / AWS Terrain Tiles'
+
+const satelliteStyleUrl = env.VITE_STYLE_SATELLITE_URL
+
+/* Mapas vectoriales de respaldo: OpenFreeMap (gratuito, sin clave).
+   Si se configuran teselas raster propias (VITE_TILES_*), se usan en su lugar. */
 const vectorDarkUrl = env.VITE_STYLE_DARK_URL ?? 'https://tiles.openfreemap.org/styles/dark'
 const vectorLightUrl = env.VITE_STYLE_LIGHT_URL ?? 'https://tiles.openfreemap.org/styles/positron'
 const rasterAttribution = env.VITE_TILES_ATTRIBUTION ?? '© OpenStreetMap contributors'
@@ -34,12 +74,35 @@ const customDarkTiles = env.VITE_TILES_DARK_URL ? [env.VITE_TILES_DARK_URL] : nu
 const customLightTiles = env.VITE_TILES_LIGHT_URL ? [env.VITE_TILES_LIGHT_URL] : null
 
 const basemaps: BasemapDef[] = [
+  satelliteStyleUrl
+    ? {
+        id: 'satellite',
+        label: 'Satélite',
+        hint: 'Imagen real con etiquetas y relieve 3D',
+        styleUrl: satelliteStyleUrl,
+        defaultPitch: 55,
+        defaultZoom: 13.2,
+      }
+    : {
+        id: 'satellite',
+        label: 'Satélite',
+        hint: 'Imagen real con etiquetas y relieve 3D',
+        tiles: satelliteTiles,
+        attribution: satelliteAttribution,
+        ...(satelliteLabelTiles
+          ? { labelTiles: satelliteLabelTiles, labelAttribution: satelliteLabelAttribution }
+          : { vectorLabels: true }),
+        terrainTiles,
+        terrainAttribution,
+        defaultPitch: 55,
+        defaultZoom: 13.2,
+      },
   customDarkTiles
-    ? { id: 'dark', label: 'Oscuro', tiles: customDarkTiles, attribution: rasterAttribution }
-    : { id: 'dark', label: 'Oscuro', styleUrl: vectorDarkUrl },
+    ? { id: 'dark', label: 'Oscuro', hint: 'Cartografía vectorial', tiles: customDarkTiles, attribution: rasterAttribution }
+    : { id: 'dark', label: 'Oscuro', hint: 'Cartografía vectorial', styleUrl: vectorDarkUrl },
   customLightTiles
-    ? { id: 'light', label: 'Claro', tiles: customLightTiles, attribution: rasterAttribution }
-    : { id: 'light', label: 'Claro', styleUrl: vectorLightUrl },
+    ? { id: 'light', label: 'Claro', hint: 'Cartografía vectorial', tiles: customLightTiles, attribution: rasterAttribution }
+    : { id: 'light', label: 'Claro', hint: 'Cartografía vectorial', styleUrl: vectorLightUrl },
 ]
 
 /* Geocoding: Nominatim no permite autocompletado en su política de uso.
