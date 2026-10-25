@@ -3,11 +3,11 @@
 > Documento de continuidad para retomar el proyecto sin perder contexto.
 > Adjunta o pega este archivo al inicio de la nueva conversación.
 
-- **Fecha de corte:** 2026-10-24
+- **Fecha de corte:** 2026-10-25
 - **Proyecto:** `C:\Users\OneCu\Desktop\Personal\Yo\Profesional\Proyectos personales\atlas`
-- **Último commit de código:** `9e82604 feat(map): satelite realista con relieve 3D y etiquetas vectoriales`
+- **Último commit de código:** `8159f42 feat(ui): pulir bottom sheet, ajustes y legibilidad del mapa`
 - **Documentación:** este `PROGRESS.md` se actualiza en el commit de cierre posterior.
-- **Estado:** rediseño satelital cerrado, verificado y commiteado. Sin cambios pendientes en el código.
+- **Estado:** rediseño satelital y pulido visual cerrados, verificados y commiteados. Sin cambios pendientes en el código.
 - **Servidor de desarrollo:** detenido al cerrar la sesión. Arrancar con `npm run dev` en el puerto 5175.
 
 ---
@@ -43,7 +43,7 @@ Requisitos no negociables:
 
 ### 2.1. Fases 1–4 y rediseño satelital: completados
 
-Base actual: commit `9e82604`.
+Fases 1–4 y rediseño satelital: commit `9e82604`. Pulido visual: commit `8159f42`.
 
 Incluye:
 
@@ -58,7 +58,7 @@ Incluye:
 - Guardados locales con colecciones, renombrar y eliminar.
 - Ajustes de usuario.
 - Layout de escritorio con panel lateral colapsable.
-- Layout móvil con bottom sheet y navegación inferior.
+- Layout móvil con bottom sheet de dos alturas y navegación inferior.
 - Code splitting: `MapStage` y controles se cargan en un chunk aparte; MapLibre no forma parte del bundle inicial.
 - Persistencia versionada y saneada en `localStorage`.
 - Limpieza de viewport en `sessionStorage`.
@@ -84,11 +84,29 @@ El mapa por defecto es un mapa satelital realista:
 - Sesión de viewport migrada a la clave `atlas.viewport.v2` para no restaurar la vista vectorial antigua.
 - El global de depuración `window.__atlasMap` se eliminó.
 
-### 2.3. Verificado en esta iteración
+### 2.3. Pulido visual de interfaz
+
+- Bottom sheet móvil con dos alturas: media `min(58dvh, 500px)` y expandida `min(78dvh, 640px)`.
+- El handle es un botón accesible con `aria-expanded` y `aria-controls`; alterna entre ambas alturas.
+- Al cerrar y volver a abrir, el sheet vuelve a la altura media (el componente móvil se desmonta y reinicia su estado).
+- El contenedor del sheet recibe foco sin anillo visible; las pestañas y el botón de cierre siguen siendo navegables.
+- Ajustes usa un diálogo flex con cabecera fija y cuerpo con scroll propio, `max-height: min(88dvh, 780px)`.
+- En escritorio, el diálogo mide 520×749.9 px a 1440×900 y muestra todo el contenido sin recortes.
+- En móvil, el cuerpo de Ajustes hace scroll; el backdrop queda por encima de la navegación inferior y la nav se oculta mientras el diálogo está abierto.
+- Checkboxes propios, coherentes con el tema oscuro/cian.
+- Etiquetas del mapa: POI desde zoom 15.5 y calles menores desde 14.5, con más `text-padding`.
+- A 13.2 y 14.2 se ven ciudades, distritos, agua y avenidas; no aparecen POI ni calles menores.
+- El check del selector de capas se alinea con la primera línea del texto.
+- Viñeta radial muy sutil sobre el mapa, con `pointer-events: none` para no bloquear la interacción.
+
+### 2.4. Verificado en esta iteración
 
 Escritorio:
 
 - El mapa abre en Satélite con zoom 13.2 y pitch 55 (confirmado leyendo la sesión de viewport tras un movimiento: `zoom: 14.2` tras un paso de zoom, `pitch: 55`).
+- Ajustes a 1440×900: caja de 520×749.9 px, cuerpo de 687 px sin scroll y sin anillo de foco en el contenedor.
+- Check custom de «Capa de puntos de interés» visible y coherente; el check del selector de capas queda a 2 px del inicio de la primera línea del texto.
+- A zoom 14.2 se ven avenidas, distritos y agua; no aparecen POI ni calles menores. La imagen sigue legible con la viñeta.
 - Imagen de Esri oscura y desaturada, sin marca de agua.
 - Etiquetas de ciudad, distrito, agua y carreteras con halo legible.
 - Atribución completa: ATLAS, relieve, Esri/Maxar/Earthstar, OpenFreeMap/OpenMapTiles/OSM.
@@ -104,24 +122,27 @@ Móvil (390×844):
 
 - Mapa satelital a pantalla completa, con bottom nav y controles.
 - Atribución plegada por defecto; al desplegarla no tapa los iconos de los controles y el texto se lee completo.
-- Selector de capas abre dentro del viewport y se puede cerrar.
-- Bottom sheet de búsqueda abre con handle, pestañas, buscador y categorías; el mapa sigue visible arriba.
+- Selector de capas abre dentro del viewport y se puede cerrar; el check queda alineado con la primera línea.
+- Bottom sheet de búsqueda: altura media 489.5 px y expandida 640 px; el handle alterna ambas y expone `aria-expanded`.
+- Al cerrar y reabrir el sheet vuelve a 489.5 px (estado reiniciado).
 - Pestaña Ruta dentro del sheet y cierre del sheet verificados.
+- Ajustes a 390×844: caja de 350×742.7 px, cuerpo con scroll (816 px de contenido), sin anillo de foco.
+- Con Ajustes abierto la navegación inferior se oculta y el backdrop queda por encima de ella; al cerrar, la nav vuelve.
 - No se muestran todos los paneles a la vez.
 
 Relieve 3D:
 
 - Comprobado visualmente en la iteración anterior en zona montañosa (Sierra de Guadarrama, centro aproximado `-3.956, 40.842`, zoom 13.2, pitch 68). La configuración de DEM, hillshade y exageración no cambió después de esa comprobación.
 
-### 2.4. Validación técnica
+### 2.5. Validación técnica
 
-Última ejecución, con el código final commiteado:
+Última ejecución, con el código final `8159f42`:
 
 | Comando | Resultado |
 |---|---|
-| `npx tsc --noEmit` | Pasa |
+| `npx tsc --noEmit` | Pasa (incluido en `npm run build`) |
 | `npm run lint` | Pasa |
-| `npm test -- --run` | 59 pruebas, 11 archivos, todas pasando |
+| `npm test` | 59 pruebas, 11 archivos, todas pasando |
 | `npm run build` | Pasa |
 
 Build de producción:
@@ -288,6 +309,8 @@ Cielo:
 'atmosphere-blend': 0.6
 ```
 
+Sobre la imagen se superpone una viñeta radial CSS sutil (`MapView.module.css`): transparente en el centro y hasta `rgba(3, 7, 9, 0.34)` en los bordes. Tiene `pointer-events: none`, por lo que no bloquea el mapa, y queda por debajo de controles y paneles.
+
 ### 4.4. Relieve 3D
 
 - Fuente `raster-dem` con `encoding: 'terrarium'`.
@@ -323,7 +346,15 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 - Viewport: `sessionStorage`.
 - No se simulan tráfico, accesibilidad, horarios, precios ni tiempos.
 
-### 4.7. Rendimiento
+### 4.7. Interfaz móvil
+
+- El bottom sheet se monta solo con `mobileSheetOpen`; al desmontarse se reinicia su estado de altura. Por eso al reabrir vuelve a la altura media.
+- Altura media: `min(58dvh, 500px)`; expandida: `min(78dvh, 640px)`; transición de altura y `prefers-reduced-motion` respetado por la base global.
+- El diálogo de Ajustes vive en un backdrop con `z-index: calc(var(--z-modal) + 2)`, por encima de la nav móvil (`+1`).
+- La nav móvil no se renderiza mientras Ajustes está abierto y reaparece al cerrarlo.
+- El selector de capas alinea el check con la primera línea del texto, no con el centro de las dos líneas.
+
+### 4.8. Rendimiento
 
 - `MapStage` se carga con `React.lazy`.
 - MapLibre se descarga en un chunk aparte.
@@ -339,8 +370,8 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 3. **Avisos de estilo de OpenFreeMap:** al cambiar a Oscuro o Claro, MapLibre muestra avisos de la propia plantilla de OpenFreeMap (`wood-pattern`, filtros de escudos de carretera). No vienen de las capas de ATLAS y no bloquean el mapa.
 4. **Overpass público inestable por diseño:** puede devolver `502` o timeout. En esta sesión respondió y devolvió 60 cafeterías, pero no hay SLA.
 5. **La capa de POI no se refresca sola al mover el mapa:** hay que pulsar «Buscar aquí» en Explorar.
-6. **Bottom sheet móvil muy alto:** ocupa unos 600 px de 844 y deja el mapa visible arriba. Es el comportamiento heredado de la fase 4; si se quiere, se puede añadir un modo medio/expandido con snap points.
-7. **Densidad de etiquetas:** los distritos aparecen desde zoom 11, las carreteras mayores desde 10 y las menores desde 13. La densidad actual se considera aceptable; si se quiere una referencia más limpia, subir esos `minzoom` en `basemap.ts`.
+6. **Bottom sheet sin arrastre continuo:** el handle alterna entre altura media y expandida; no hay gesto de arrastre con snap libre. Es una decisión de alcance, no un fallo.
+7. **Densidad de etiquetas:** POI desde zoom 15.5 y calles menores desde 14.5; a 14.2 quedan avenidas, distritos y agua. Si se quiere una referencia aún más limpia, subir el `minzoom` de carreteras mayores (10) o de distritos (11) en `basemap.ts`.
 8. **Sin proveedor de producción configurado:** todo el mapa base funciona con servicios públicos de demo. La vía es `VITE_STYLE_SATELLITE_URL` o las variables `VITE_TILES_SATELLITE_*`.
 9. **No hay 3D de edificios:** solo terreno y cielo. No afirmarlo de otra forma.
 
@@ -348,13 +379,13 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 
 ## 6. Siguiente paso
 
-El rediseño satelital ya está cerrado. **No hay tareas pendientes ni deuda bloqueante de esta iteración.**
+El rediseño satelital y el pulido visual ya están cerrados. **No hay tareas pendientes ni deuda bloqueante de esta iteración.**
 
 Para continuar, elegir una línea de trabajo con el usuario antes de escribir código:
 
 1. **Fase 5 de producto:** nuevas funciones (por ejemplo, filtros de POI, exportar rutas, comparador de alternativas, historial de búsquedas).
 2. **Producción:** proveedor de mapa con clave, variables `.env`, atribución definitiva, revisión de licencias y despliegue.
-3. **Pulido visual:** snap points del bottom sheet, densidad de etiquetas, más ajustes de cámara.
+3. **Pulido visual restante (opcional):** arrastre gestual del bottom sheet, más ajustes de cámara y revisión tipográfica.
 4. **Calidad:** ampliar pruebas de integración del mapa y de los flujos móviles.
 
 Antes de empezar cualquier línea, leer este archivo y ejecutar el quality gate para confirmar que la base sigue sana.
@@ -396,12 +427,12 @@ location.reload()
 ```text
 Continúa ATLAS desde el archivo PROGRESS.md adjunto.
 
-Estado: fases 1–4 y rediseño satelital completados y commiteados en `9e82604`.
+Estado: fases 1–4 y rediseño satelital en `9e82604`; pulido visual en `8159f42`.
 El working tree está limpio. El servidor de desarrollo está detenido.
 
 Empieza por:
 1. Leer PROGRESS.md y revisar `git status` / `git log --oneline -3`.
-2. Ejecutar `npx tsc --noEmit`, `npm run lint`, `npm test -- --run` y `npm run build`.
+2. Ejecutar `npm run lint`, `npm test` y `npm run build` (incluye `tsc --noEmit`).
 3. Arrancar `npm run dev` y confirmar que el mapa abre en Satélite, con pitch 55 y zoom 13.2.
 4. Preguntar al usuario qué línea de la sección 6 quiere abordar antes de escribir código.
 
