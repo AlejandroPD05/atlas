@@ -109,14 +109,20 @@
 
 .layerItem {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 8px;
   width: 100%;
   padding: 7px 8px;
   border-radius: var(--r-1);
   font-size: var(--fs-13);
   color: var(--text-secondary);
   transition: background var(--dur-1) var(--ease-out);
+}
+
+.layerItem > svg {
+  flex: none;
+  margin-top: 2px;
 }
 
 .layerItem:hover {

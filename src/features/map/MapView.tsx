@@ -131,6 +131,7 @@ export function MapView() {
   return (
     <div className={styles.wrap} id="atlas-map" aria-label="Mapa interactivo">
       <div ref={containerRef} className={styles.map} />
+      <div className={styles.vignette} aria-hidden="true" />
       {failed && (
         <div className={styles.fail} role="alert">
           <p className={styles.failTitle}>No se pudieron cargar los datos del mapa</p>

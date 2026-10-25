@@ -10,6 +10,20 @@
   inset: 0;
 }
 
+/* Viñeta muy sutil: hunde los bordes y deja el centro limpio. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 95% 85% at 50% 45%,
+    transparent 52%,
+    rgba(3, 7, 9, 0.2) 82%,
+    rgba(3, 7, 9, 0.34) 100%
+  );
+}
+
 .fail {
   position: absolute;
   left: 50%;

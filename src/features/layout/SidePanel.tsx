@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useAppStore } from '../../store/appStore'
 import { useIsMobile } from '../../hooks/useMediaQuery'
@@ -75,48 +75,62 @@ function ProviderFooter() {
   )
 }
 
+function MobileSheet() {
+  const setSheetOpen = useAppStore((s) => s.setMobileSheetOpen)
+  const [expanded, setExpanded] = useState(false)
+  const sheetRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    sheetRef.current?.focus()
+  }, [])
+
+  return (
+    <aside
+      ref={sheetRef}
+      id="atlas-sheet"
+      tabIndex={-1}
+      className={cn(styles.sheet, expanded && styles.sheetExpanded)}
+      aria-label="Panel de herramientas"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') setSheetOpen(false)
+      }}
+    >
+      <div className={styles.sheetHead}>
+        <button
+          type="button"
+          className={styles.handle}
+          aria-label={expanded ? 'Contraer panel' : 'Expandir panel'}
+          aria-expanded={expanded}
+          aria-controls="atlas-sheet"
+          title={expanded ? 'Contraer panel' : 'Expandir panel'}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          <span className={styles.handleBar} aria-hidden="true" />
+        </button>
+        <div className={styles.sheetTabs} role="tablist" aria-label="Secciones">
+          <TabList />
+        </div>
+        <IconButton label="Cerrar panel" onClick={() => setSheetOpen(false)}>
+          <X size={16} />
+        </IconButton>
+      </div>
+      <div className={styles.content}>
+        <ActiveTabContent />
+      </div>
+      <ProviderFooter />
+    </aside>
+  )
+}
+
 /** Panel lateral izquierdo (escritorio) o bottom sheet (móvil). */
 export function SidePanel() {
   const collapsed = useAppStore((s) => s.sideCollapsed)
   const toggleCollapsed = useAppStore((s) => s.toggleSideCollapsed)
   const sheetOpen = useAppStore((s) => s.mobileSheetOpen)
-  const setSheetOpen = useAppStore((s) => s.setMobileSheetOpen)
   const isMobile = useIsMobile()
-  const sheetRef = useRef<HTMLElement>(null)
-
-  useEffect(() => {
-    if (isMobile && sheetOpen) {
-      sheetRef.current?.focus()
-    }
-  }, [isMobile, sheetOpen])
 
   if (isMobile) {
-    if (!sheetOpen) return null
-    return (
-      <aside
-        ref={sheetRef}
-        tabIndex={-1}
-        className={styles.sheet}
-        aria-label="Panel de herramientas"
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') setSheetOpen(false)
-        }}
-      >
-        <div className={styles.sheetHead}>
-          <span className={styles.handle} aria-hidden="true" />
-          <div className={styles.sheetTabs} role="tablist" aria-label="Secciones">
-            <TabList />
-          </div>
-          <IconButton label="Cerrar panel" onClick={() => setSheetOpen(false)}>
-            <X size={16} />
-          </IconButton>
-        </div>
-        <div className={styles.content}>
-          <ActiveTabContent />
-        </div>
-        <ProviderFooter />
-      </aside>
-    )
+    return sheetOpen ? <MobileSheet /> : null
   }
 
   return (

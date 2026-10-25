@@ -13,8 +13,10 @@ export function MobileNav() {
   const sheetOpen = useAppStore((s) => s.mobileSheetOpen)
   const setSheetOpen = useAppStore((s) => s.setMobileSheetOpen)
   const setSettingsOpen = useAppStore((s) => s.setSettingsOpen)
+  const settingsOpen = useAppStore((s) => s.settingsOpen)
 
   if (!isMobile) return null
+  if (settingsOpen) return null
 
   return (
     <nav className={styles.nav} aria-label="Navegación principal">

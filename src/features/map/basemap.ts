@@ -105,7 +105,8 @@ function vectorLabelLayers(): LayerSpecification[] {
       type: 'symbol',
       source: SRC.vector,
       'source-layer': 'poi',
-      minzoom: 14,
+      /* A escala de barrio; antes competía con las etiquetas de distrito. */
+      minzoom: 15.5,
       filter: [
         'all',
         ['has', 'name'],
@@ -118,9 +119,9 @@ function vectorLabelLayers(): LayerSpecification[] {
       layout: {
         'text-field': ['coalesce', ['get', 'name:es'], ['get', 'name']],
         'text-font': ['Noto Sans Regular'],
-        'text-size': ['interpolate', ['linear'], ['zoom'], 14, 9, 18, 11],
+        'text-size': ['interpolate', ['linear'], ['zoom'], 15.5, 9, 18, 11],
         'text-max-width': 8,
-        'text-padding': 3,
+        'text-padding': 4,
         'text-optional': true,
         'text-rotation-alignment': 'viewport',
         'text-pitch-alignment': 'viewport',
@@ -138,7 +139,9 @@ function vectorLabelLayers(): LayerSpecification[] {
       type: 'symbol',
       source: SRC.vector,
       'source-layer': 'transportation_name',
-      minzoom: 13,
+      /* Las calles menores entran al acercarse; a zoom urbano medio
+         saturaban la imagen y competían con las avenidas. */
+      minzoom: 14.5,
       filter: [
         'all',
         ['has', 'name'],
@@ -148,10 +151,10 @@ function vectorLabelLayers(): LayerSpecification[] {
         'symbol-placement': 'line',
         'text-field': ['coalesce', ['get', 'name:es'], ['get', 'name']],
         'text-font': ['Noto Sans Regular'],
-        'text-size': ['interpolate', ['linear'], ['zoom'], 13, 9, 17, 11],
-        'symbol-spacing': ['interpolate', ['linear'], ['zoom'], 13, 360, 17, 240],
+        'text-size': ['interpolate', ['linear'], ['zoom'], 14.5, 9, 17, 11],
+        'symbol-spacing': ['interpolate', ['linear'], ['zoom'], 14.5, 360, 17, 240],
         'text-max-angle': 30,
-        'text-padding': 2,
+        'text-padding': 3,
         'text-keep-upright': true,
         'text-rotation-alignment': 'map',
       },

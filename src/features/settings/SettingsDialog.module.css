@@ -1,7 +1,8 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: var(--z-modal);
+  /* Por encima de la nav móvil, que vive un nivel por encima del sheet. */
+  z-index: calc(var(--z-modal) + 2);
   display: grid;
   place-items: center;
   padding: 20px;
@@ -17,14 +18,21 @@
 }
 
 .dialog {
+  display: flex;
+  flex-direction: column;
   width: min(520px, 100%);
-  max-height: min(82vh, 720px);
-  overflow-y: auto;
+  max-height: min(88vh, 780px);
+  max-height: min(88dvh, 780px);
+  overflow: hidden;
   border-radius: var(--r-3);
   border: 1px solid var(--border-strong);
   background: var(--surface-panel-solid);
   box-shadow: var(--shadow-pop);
   animation: dialogIn var(--dur-3) var(--ease-out);
+}
+
+.dialog:focus-visible {
+  outline: none;
 }
 
 @keyframes dialogIn {
@@ -38,12 +46,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex: none;
   padding: 14px 14px 12px 18px;
   border-bottom: 1px solid var(--divider);
-  position: sticky;
-  top: 0;
   background: var(--surface-panel-solid);
-  z-index: 1;
 }
 
 .title {
@@ -56,6 +62,9 @@
   flex-direction: column;
   gap: 22px;
   padding: 16px 18px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .section {
@@ -92,10 +101,27 @@
 }
 
 .row input[type='checkbox'] {
-  width: 17px;
-  height: 17px;
-  accent-color: var(--accent);
+  appearance: none;
+  width: 18px;
+  height: 18px;
   flex: none;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.035) center / 12px 12px no-repeat;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+
+.row input[type='checkbox']:hover {
+  border-color: var(--text-muted);
+}
+
+.row input[type='checkbox']:checked {
+  border-color: var(--accent);
+  background-color: var(--accent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23032420' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
 }
 
 .segment {

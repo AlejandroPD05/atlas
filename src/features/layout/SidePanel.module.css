@@ -139,13 +139,26 @@
   z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
-  max-height: min(72vh, 600px);
+  height: min(58vh, 500px);
+  height: min(58dvh, 500px);
+  max-height: calc(100vh - 84px);
+  max-height: calc(100dvh - 84px);
   border-radius: var(--r-3);
   border: 1px solid var(--border-strong);
   background: var(--surface-panel-solid);
   box-shadow: var(--shadow-pop);
   overflow: hidden;
   animation: sheetIn var(--dur-3) var(--ease-out);
+  transition: height var(--dur-3) var(--ease-out);
+}
+
+.sheetExpanded {
+  height: min(78vh, 640px);
+  height: min(78dvh, 640px);
+}
+
+.sheet:focus-visible {
+  outline: none;
 }
 
 @keyframes sheetIn {
@@ -159,7 +172,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px 4px 4px;
+  padding: 18px 8px 4px 4px;
   border-bottom: 1px solid var(--divider);
   position: relative;
   flex: none;
@@ -167,13 +180,35 @@
 
 .handle {
   position: absolute;
-  top: 6px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 18px;
+  border-radius: 0 0 9px 9px;
+  transition: background var(--dur-1) var(--ease-out);
+}
+
+.handle:hover {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.handleBar {
   width: 40px;
   height: 3px;
   border-radius: 2px;
   background: rgba(255, 255, 255, 0.18);
+  transition:
+    width var(--dur-2) var(--ease-out),
+    background var(--dur-2) var(--ease-out);
+}
+
+.handle:hover .handleBar,
+.handle:focus-visible .handleBar {
+  width: 46px;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .sheetTabs {
@@ -181,7 +216,6 @@
   align-items: center;
   gap: 2px;
   flex: 1;
-  margin-top: 8px;
 }
 
 .sheetTabs > * {
