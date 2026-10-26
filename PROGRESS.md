@@ -3,11 +3,11 @@
 > Documento de continuidad para retomar el proyecto sin perder contexto.
 > Adjunta o pega este archivo al inicio de la nueva conversación.
 
-- **Fecha de corte:** 2026-10-25
+- **Fecha de corte:** 2026-10-26
 - **Proyecto:** `C:\Users\OneCu\Desktop\Personal\Yo\Profesional\Proyectos personales\atlas`
-- **Último commit de código:** `8159f42 feat(ui): pulir bottom sheet, ajustes y legibilidad del mapa`
+- **Último commit de código:** `1695181 feat(ui): arrastrar el bottom sheet y afinar la camara`
 - **Documentación:** este `PROGRESS.md` se actualiza en el commit de cierre posterior.
-- **Estado:** rediseño satelital y pulido visual cerrados, verificados y commiteados. Sin cambios pendientes en el código.
+- **Estado:** rediseño satelital y pulido cerrados, incluidos el arrastre del bottom sheet, la cámara y la tipografía estrecha. Sin cambios pendientes en el código.
 - **Servidor de desarrollo:** detenido al cerrar la sesión. Arrancar con `npm run dev` en el puerto 5175.
 
 ---
@@ -43,7 +43,7 @@ Requisitos no negociables:
 
 ### 2.1. Fases 1–4 y rediseño satelital: completados
 
-Fases 1–4 y rediseño satelital: commit `9e82604`. Pulido visual: commit `8159f42`.
+Fases 1–4 y rediseño satelital: commit `9e82604`. Pulido visual: commits `8159f42` y `1695181`.
 
 Incluye:
 
@@ -87,8 +87,13 @@ El mapa por defecto es un mapa satelital realista:
 ### 2.3. Pulido visual de interfaz
 
 - Bottom sheet móvil con dos alturas: media `min(58dvh, 500px)` y expandida `min(78dvh, 640px)`.
-- El handle es un botón accesible con `aria-expanded` y `aria-controls`; alterna entre ambas alturas.
+- El handle es un botón accesible con `aria-expanded` y `aria-controls`; un clic alterna entre ambas alturas.
+- El handle también se arrastra con puntero o toque: la altura sigue al dedo entre ambos límites y hace snap al punto medio. `touch-action: none` evita que el gesto desplace la página.
+- El clic que el navegador emite después de un arrastre se suprime durante 300 ms para que no vuelva a alternar la altura; si no llega, el siguiente clic funciona con normalidad.
+- Con el handle enfocado, `ArrowUp` expande y `ArrowDown` contrae; `Enter` y `Espacio` conservan la alternancia nativa.
 - Al cerrar y volver a abrir, el sheet vuelve a la altura media (el componente móvil se desmonta y reinicia su estado).
+- La brújula vuelve al norte y al pitch por defecto del mapa base (55° en Satélite), no a un plano de 0°. Solo aparece cuando la cámara se sale de esa referencia.
+- En pantallas de hasta 360 px las pestañas del sheet apilan icono y etiqueta, y la nav móvil reduce el `letter-spacing` para que «Guardados» no se recorte.
 - El contenedor del sheet recibe foco sin anillo visible; las pestañas y el botón de cierre siguen siendo navegables.
 - Ajustes usa un diálogo flex con cabecera fija y cuerpo con scroll propio, `max-height: min(88dvh, 780px)`.
 - En escritorio, el diálogo mide 520×749.9 px a 1440×900 y muestra todo el contenido sin recortes.
@@ -110,6 +115,8 @@ Escritorio:
 - Imagen de Esri oscura y desaturada, sin marca de agua.
 - Etiquetas de ciudad, distrito, agua y carreteras con halo legible.
 - Atribución completa: ATLAS, relieve, Esri/Maxar/Earthstar, OpenFreeMap/OpenMapTiles/OSM.
+- Panel lateral a 1440×900: 384×808 px, sin sheet ni nav móvil; los controles del mapa siguen completos.
+- Brújula: con pitch 70 y bearing 30 aparece; al pulsarla vuelve a pitch 55 y bearing 0 y se oculta. También aparece al girar a bearing 20 y se oculta al volver al norte.
 - Cambio Satélite → Oscuro → Claro → Satélite verificado.
 - Búsqueda de «Museo del Prado» con Nominatim: 1 resultado, ficha completa, teléfono, web y horario publicados en OSM.
 - «Cómo llegar» abre el planificador con el destino rellenado.
@@ -123,11 +130,14 @@ Móvil (390×844):
 - Mapa satelital a pantalla completa, con bottom nav y controles.
 - Atribución plegada por defecto; al desplegarla no tapa los iconos de los controles y el texto se lee completo.
 - Selector de capas abre dentro del viewport y se puede cerrar; el check queda alineado con la primera línea.
-- Bottom sheet de búsqueda: altura media 489.5 px y expandida 640 px; el handle alterna ambas y expone `aria-expanded`.
+- Bottom sheet de búsqueda: altura media 489.5 px y expandida 640 px; el handle alterna ambas con clic y teclado, y expone `aria-expanded`.
+- Arrastre verificado a 390×844: subida 489.5 → 599.5 px en vivo → snap a 640 px; bajada 640 → 540 → snap a 489.5 px. El clic inmediato posterior al arrastre no vuelve a alternar; un clic posterior sí.
+- Flechas del handle verificadas: `ArrowUp` lleva a 640 px y `ArrowDown` a 489.5 px.
 - Al cerrar y reabrir el sheet vuelve a 489.5 px (estado reiniciado).
 - Pestaña Ruta dentro del sheet y cierre del sheet verificados.
 - Ajustes a 390×844: caja de 350×742.7 px, cuerpo con scroll (816 px de contenido), sin anillo de foco.
 - Con Ajustes abierto la navegación inferior se oculta y el backdrop queda por encima de ella; al cerrar, la nav vuelve.
+- A 320×568 las pestañas del sheet pasan a columna (61 px por pestaña) y «Guardados» cabe entero (52.9 px); las etiquetas de la nav móvil tampoco se recortan.
 - No se muestran todos los paneles a la vez.
 
 Relieve 3D:
@@ -136,7 +146,7 @@ Relieve 3D:
 
 ### 2.5. Validación técnica
 
-Última ejecución, con el código final `8159f42`:
+Última ejecución, con el código final `1695181`:
 
 | Comando | Resultado |
 |---|---|
@@ -147,7 +157,7 @@ Relieve 3D:
 
 Build de producción:
 
-- Bundle inicial: `index-*.js` ~340 kB (106 kB gzip).
+- Bundle inicial: `index-*.js` ~343 kB (107 kB gzip).
 - MapLibre: ~1,06 MB (288 kB gzip), en chunk diferido.
 - Worker de MapLibre: ~518 kB.
 - El aviso de Vite por tamaño del chunk de MapLibre es esperado.
@@ -350,6 +360,9 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 
 - El bottom sheet se monta solo con `mobileSheetOpen`; al desmontarse se reinicia su estado de altura. Por eso al reabrir vuelve a la altura media.
 - Altura media: `min(58dvh, 500px)`; expandida: `min(78dvh, 640px)`; transición de altura y `prefers-reduced-motion` respetado por la base global.
+- El arrastre vive solo en el handle: captura el puntero, aplica un umbral de 4 px, limita la altura entre media y expandida y actualiza el alto en vivo con estilos inline. Al soltar hace snap al punto medio.
+- Las constantes `SHEET_*` de `SidePanel.tsx` replican las alturas y el margen inferior del CSS; si se cambian en un sitio, hay que cambiarlas en el otro.
+- El clic posterior al arrastre se ignora durante 300 ms mediante un temporizador que se limpia al desmontar. `ArrowUp`/`ArrowDown` controlan la altura desde el teclado.
 - El diálogo de Ajustes vive en un backdrop con `z-index: calc(var(--z-modal) + 2)`, por encima de la nav móvil (`+1`).
 - La nav móvil no se renderiza mientras Ajustes está abierto y reaparece al cerrarlo.
 - El selector de capas alinea el check con la primera línea del texto, no con el centro de las dos líneas.
@@ -370,7 +383,7 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 3. **Avisos de estilo de OpenFreeMap:** al cambiar a Oscuro o Claro, MapLibre muestra avisos de la propia plantilla de OpenFreeMap (`wood-pattern`, filtros de escudos de carretera). No vienen de las capas de ATLAS y no bloquean el mapa.
 4. **Overpass público inestable por diseño:** puede devolver `502` o timeout. En esta sesión respondió y devolvió 60 cafeterías, pero no hay SLA.
 5. **La capa de POI no se refresca sola al mover el mapa:** hay que pulsar «Buscar aquí» en Explorar.
-6. **Bottom sheet sin arrastre continuo:** el handle alterna entre altura media y expandida; no hay gesto de arrastre con snap libre. Es una decisión de alcance, no un fallo.
+6. **Bottom sheet sin inercia:** el arrastre sigue al puntero y hace snap al punto medio; no hay física de momentum ni rebote elástico. Es una decisión de alcance.
 7. **Densidad de etiquetas:** POI desde zoom 15.5 y calles menores desde 14.5; a 14.2 quedan avenidas, distritos y agua. Si se quiere una referencia aún más limpia, subir el `minzoom` de carreteras mayores (10) o de distritos (11) en `basemap.ts`.
 8. **Sin proveedor de producción configurado:** todo el mapa base funciona con servicios públicos de demo. La vía es `VITE_STYLE_SATELLITE_URL` o las variables `VITE_TILES_SATELLITE_*`.
 9. **No hay 3D de edificios:** solo terreno y cielo. No afirmarlo de otra forma.
@@ -379,14 +392,13 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 
 ## 6. Siguiente paso
 
-El rediseño satelital y el pulido visual ya están cerrados. **No hay tareas pendientes ni deuda bloqueante de esta iteración.**
+El rediseño satelital y todo el pulido visual (bottom sheet, cámara y tipografía estrecha) ya están cerrados. **No hay tareas pendientes ni deuda bloqueante de esta iteración.**
 
 Para continuar, elegir una línea de trabajo con el usuario antes de escribir código:
 
 1. **Fase 5 de producto:** nuevas funciones (por ejemplo, filtros de POI, exportar rutas, comparador de alternativas, historial de búsquedas).
 2. **Producción:** proveedor de mapa con clave, variables `.env`, atribución definitiva, revisión de licencias y despliegue.
-3. **Pulido visual restante (opcional):** arrastre gestual del bottom sheet, más ajustes de cámara y revisión tipográfica.
-4. **Calidad:** ampliar pruebas de integración del mapa y de los flujos móviles.
+3. **Calidad:** ampliar pruebas de integración del mapa y de los flujos móviles.
 
 Antes de empezar cualquier línea, leer este archivo y ejecutar el quality gate para confirmar que la base sigue sana.
 
@@ -427,7 +439,7 @@ location.reload()
 ```text
 Continúa ATLAS desde el archivo PROGRESS.md adjunto.
 
-Estado: fases 1–4 y rediseño satelital en `9e82604`; pulido visual en `8159f42`.
+Estado: fases 1–4 y rediseño satelital en `9e82604`; pulido visual en `8159f42` y `1695181`.
 El working tree está limpio. El servidor de desarrollo está detenido.
 
 Empieza por:

@@ -15,8 +15,8 @@ ATLAS no inventa datos. Cuando un perfil, un horario o una accesibilidad no se p
 - **Explorar** puntos de interés por categorías con Overpass. Los resultados se agrupan con clustering real de MapLibre; al pulsar un grupo el mapa se acerca para separarlo.
 - **Guardados locales** en colecciones versionadas: crear, renombrar, eliminar, quitar lugares, abrir la ficha y trazar una ruta.
 - **Ajustes** de unidades, movimiento reducido y capa de POI.
-- **Diseño responsive**: panel lateral colapsable en escritorio; bottom sheet de dos alturas (media y expandida) y navegación inferior en móvil. Nunca se muestran todos los paneles a la vez.
-- **Accesibilidad básica**: navegación por teclado, etiquetas ARIA, foco visible, cierre con Escape y respeto a `prefers-reduced-motion`.
+- **Diseño responsive**: panel lateral colapsable en escritorio; bottom sheet de dos alturas en móvil, con arrastre desde el handle, clic y teclado, más navegación inferior. Nunca se muestran todos los paneles a la vez.
+- **Accesibilidad básica**: navegación por teclado, etiquetas ARIA, foco visible, cierre con Escape y respeto a `prefers-reduced-motion`. El handle del bottom sheet responde a las flechas y conserva la activación con `Enter` y `Espacio`.
 
 ## Datos y honestidad
 
@@ -98,9 +98,10 @@ Estado comprobado en esta versión:
 
 - 59 pruebas en 11 archivos, todas pasando.
 - `tsc --noEmit`, ESLint y build de producción pasando.
-- MapLibre se carga en un chunk diferido; el bundle inicial queda en ~340 kB (106 kB gzip). El chunk de MapLibre (~1,06 MB, 288 kB gzip) y su worker (518 kB) solo se descargan para el mapa.
-- Verificado en navegador de escritorio (1440×900): mapa satelital con etiquetas vectoriales, atribución completa, cambio Satélite / Oscuro / Claro y diálogo de Ajustes completo (520×750) sin recortes. El relieve 3D se comprobó en zona montañosa.
-- Verificado en navegador móvil (390×844): mapa satelital, atribución compacta que no tapa los controles, selector de capas, bottom sheet de búsqueda con alturas media/expandida, ajustes modales con scroll y planificador.
+- MapLibre se carga en un chunk diferido; el bundle inicial queda en ~343 kB (107 kB gzip). El chunk de MapLibre (~1,06 MB, 288 kB gzip) y su worker (518 kB) solo se descargan para el mapa.
+- Verificado en navegador de escritorio (1440×900): mapa satelital con etiquetas vectoriales, atribución completa, cambio Satélite / Oscuro / Claro y diálogo de Ajustes completo (520×750) sin recortes. La brújula vuelve al pitch 55° del mapa base y se oculta cuando la cámara está en la referencia. El relieve 3D se comprobó en zona montañosa.
+- Verificado en navegador móvil (390×844): mapa satelital, atribución compacta que no tapa los controles, selector de capas, bottom sheet de búsqueda con alturas media/expandida, arrastre con snap y supresión del clic posterior, ajustes modales con scroll y planificador.
+- Verificado a 320×568: pestañas del sheet en columna y etiquetas de la nav móvil completas, sin recortes.
 - Verificado en navegador: clustering de POI, contador de grupo, expansión al pulsar, selección de un punto, visibilidad de la capa, guardado de un lugar, ficha, ruta desde un guardado, renombrar y eliminar colecciones.
 
 El aviso de Vite sobre el tamaño del chunk de MapLibre es esperado: es una librería grande que se descarga de forma diferida y no forma parte del arranque inicial de la interfaz.
