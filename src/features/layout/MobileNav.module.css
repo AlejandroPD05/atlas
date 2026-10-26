@@ -47,3 +47,9 @@
   text-overflow: ellipsis;
   max-width: 100%;
 }
+
+@media (max-width: 360px) {
+  .label {
+    letter-spacing: 0;
+  }
+}

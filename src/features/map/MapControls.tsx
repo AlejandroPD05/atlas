@@ -34,10 +34,14 @@ export function MapControls() {
   const wrapRef = useRef<HTMLDivElement>(null)
   const flewToRef = useRef<string | null>(null)
 
-  /* Orientación: mostrar botón de brújula solo si hay rotación o inclinación */
+  /* La cámara de referencia es el norte con la inclinación propia del mapa base. */
+  const defaultPitch = appConfig.basemaps.find((basemap) => basemap.id === basemapId)?.defaultPitch ?? 0
+
+  /* Orientación: la brújula solo aparece si la cámara se sale de esa referencia. */
   useEffect(() => {
     if (!map) return
-    const onRotate = () => setRotated(map.getBearing() !== 0 || map.getPitch() !== 0)
+    const onRotate = () =>
+      setRotated(map.getBearing() !== 0 || Math.abs(map.getPitch() - defaultPitch) > 0.5)
     map.on('rotate', onRotate)
     map.on('pitch', onRotate)
     onRotate()
@@ -45,7 +49,7 @@ export function MapControls() {
       map.off('rotate', onRotate)
       map.off('pitch', onRotate)
     }
-  }, [map])
+  }, [map, defaultPitch])
 
   /* Pantalla completa del conjunto (mapa + interfaz) */
   useEffect(() => {
@@ -132,7 +136,7 @@ export function MapControls() {
             aria-label="Restablecer orientación"
             title="Restablecer orientación"
             disabled={disabled}
-            onClick={() => map?.easeTo({ bearing: 0, pitch: 0, duration: 500 })}
+            onClick={() => map?.easeTo({ bearing: 0, pitch: defaultPitch, duration: 500 })}
           >
             <Compass size={17} />
           </button>

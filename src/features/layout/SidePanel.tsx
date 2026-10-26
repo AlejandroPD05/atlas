@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useAppStore } from '../../store/appStore'
 import { useIsMobile } from '../../hooks/useMediaQuery'
@@ -10,6 +16,28 @@ import { ExplorePanel } from '../explore/ExplorePanel'
 import { SavedPanel } from '../saved/SavedPanel'
 import { PANEL_TABS } from './tabs'
 import styles from './SidePanel.module.css'
+
+/* Valores sincronizados con SidePanel.module.css. */
+const SHEET_BOTTOM_OFFSET = 84
+const SHEET_MEDIUM_RATIO = 0.58
+const SHEET_EXPANDED_RATIO = 0.78
+const SHEET_MEDIUM_MAX = 500
+const SHEET_EXPANDED_MAX = 640
+const DRAG_THRESHOLD = 4
+
+interface SheetDrag {
+  pointerId: number
+  startY: number
+  startHeight: number
+  startExpanded: boolean
+  currentHeight: number
+  mediumHeight: number
+  expandedHeight: number
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
+}
 
 function ActiveTabContent() {
   const activeTab = useAppStore((s) => s.activeTab)
@@ -78,18 +106,125 @@ function ProviderFooter() {
 function MobileSheet() {
   const setSheetOpen = useAppStore((s) => s.setMobileSheetOpen)
   const [expanded, setExpanded] = useState(false)
+  const [dragHeight, setDragHeight] = useState<number | null>(null)
   const sheetRef = useRef<HTMLElement>(null)
+  const dragRef = useRef<SheetDrag | null>(null)
+  const didDragRef = useRef(false)
+  const dragClickTimerRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
     sheetRef.current?.focus()
+    return () => {
+      if (dragClickTimerRef.current !== undefined) window.clearTimeout(dragClickTimerRef.current)
+    }
   }, [])
+
+  const onHandlePointerDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    if (e.button !== 0) return
+    const sheet = sheetRef.current
+    if (!sheet) return
+
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight
+    const maxHeight = Math.max(0, viewportHeight - SHEET_BOTTOM_OFFSET)
+    const mediumHeight = Math.min(viewportHeight * SHEET_MEDIUM_RATIO, SHEET_MEDIUM_MAX, maxHeight)
+    const expandedHeight = Math.min(viewportHeight * SHEET_EXPANDED_RATIO, SHEET_EXPANDED_MAX, maxHeight)
+    const startHeight = sheet.getBoundingClientRect().height
+
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startY: e.clientY,
+      startHeight,
+      startExpanded: expanded,
+      currentHeight: startHeight,
+      mediumHeight,
+      expandedHeight,
+    }
+    if (dragClickTimerRef.current !== undefined) {
+      window.clearTimeout(dragClickTimerRef.current)
+      dragClickTimerRef.current = undefined
+    }
+    didDragRef.current = false
+    setDragHeight(startHeight)
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  const onHandlePointerMove = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current
+    if (!drag || drag.pointerId !== e.pointerId) return
+
+    const delta = e.clientY - drag.startY
+    if (!didDragRef.current && Math.abs(delta) < DRAG_THRESHOLD) return
+    didDragRef.current = true
+
+    const next = clamp(drag.startHeight - delta, drag.mediumHeight, drag.expandedHeight)
+    drag.currentHeight = next
+    setDragHeight(next)
+  }
+
+  const endDrag = (e: ReactPointerEvent<HTMLButtonElement>, cancelled: boolean) => {
+    const drag = dragRef.current
+    if (!drag || drag.pointerId !== e.pointerId) return
+
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    }
+
+    if (cancelled) {
+      setExpanded(drag.startExpanded)
+    } else if (didDragRef.current) {
+      const midpoint = (drag.mediumHeight + drag.expandedHeight) / 2
+      setExpanded(drag.currentHeight > midpoint)
+    }
+
+    if (didDragRef.current) {
+      /* El click posterior al arrastre no debe alternar otra vez. Si el
+         navegador no lo emite, el siguiente click vuelve a funcionar. */
+      if (dragClickTimerRef.current !== undefined) window.clearTimeout(dragClickTimerRef.current)
+      dragClickTimerRef.current = window.setTimeout(() => {
+        didDragRef.current = false
+        dragClickTimerRef.current = undefined
+      }, 300)
+    }
+
+    dragRef.current = null
+    setDragHeight(null)
+  }
+
+  const onHandleClick = () => {
+    if (didDragRef.current) {
+      didDragRef.current = false
+      if (dragClickTimerRef.current !== undefined) {
+        window.clearTimeout(dragClickTimerRef.current)
+        dragClickTimerRef.current = undefined
+      }
+      return
+    }
+    setExpanded((value) => !value)
+  }
+
+  const onHandleKeyDown = (e: ReactKeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      /* Si el último gesto fue un arrastre cancelado, la activación
+         por teclado debe seguir funcionando. */
+      didDragRef.current = false
+      return
+    }
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return
+    e.preventDefault()
+    setExpanded(e.key === 'ArrowUp')
+  }
 
   return (
     <aside
       ref={sheetRef}
       id="atlas-sheet"
       tabIndex={-1}
-      className={cn(styles.sheet, expanded && styles.sheetExpanded)}
+      className={cn(
+        styles.sheet,
+        expanded && styles.sheetExpanded,
+        dragHeight !== null && styles.sheetDragging,
+      )}
+      style={dragHeight === null ? undefined : { height: dragHeight }}
       aria-label="Panel de herramientas"
       onKeyDown={(e) => {
         if (e.key === 'Escape') setSheetOpen(false)
@@ -103,7 +238,12 @@ function MobileSheet() {
           aria-expanded={expanded}
           aria-controls="atlas-sheet"
           title={expanded ? 'Contraer panel' : 'Expandir panel'}
-          onClick={() => setExpanded((value) => !value)}
+          onPointerDown={onHandlePointerDown}
+          onPointerMove={onHandlePointerMove}
+          onPointerUp={(e) => endDrag(e, false)}
+          onPointerCancel={(e) => endDrag(e, true)}
+          onClick={onHandleClick}
+          onKeyDown={onHandleKeyDown}
         >
           <span className={styles.handleBar} aria-hidden="true" />
         </button>
