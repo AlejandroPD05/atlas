@@ -9,7 +9,6 @@ import { haversineDistanceM } from '../../utils/geo'
 import { getCategory } from './categories'
 import { getMapInstance } from '../map/mapInstance'
 
-const EXPLORE_RADIUS_M = 1500
 const EXPLORE_LIMIT = 60
 
 function sortByDistance(places: Place[], center: { lng: number; lat: number }): Place[] {
@@ -53,7 +52,7 @@ export function useExploreController() {
         baseUrl: appConfig.pois.url,
         category,
         center,
-        radiusM: EXPLORE_RADIUS_M,
+        radiusM: useAppStore.getState().prefs.poiRadiusM,
         limit: EXPLORE_LIMIT,
         signal: controller.signal,
       })
@@ -90,6 +89,5 @@ export function useExploreController() {
     refresh,
     retry: refresh,
     selectPoi,
-    radiusM: EXPLORE_RADIUS_M,
   }
 }

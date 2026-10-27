@@ -1,4 +1,5 @@
-import type { SavedCollection, SavedPlace, UserPreferences } from '../types/domain'
+import type { PoiRadiusM, SavedCollection, SavedPlace, UserPreferences } from '../types/domain'
+import { POI_RADII_M } from '../types/domain'
 import { isValidLngLat } from '../utils/geo'
 import { uid } from '../utils/id'
 
@@ -9,6 +10,11 @@ export const defaultPreferences: UserPreferences = {
   units: 'metric',
   reduceMotion: false,
   showPoiLayer: true,
+  poiRadiusM: 1500,
+}
+
+function sanitizePoiRadius(raw: unknown): PoiRadiusM {
+  return POI_RADII_M.includes(raw as PoiRadiusM) ? (raw as PoiRadiusM) : defaultPreferences.poiRadiusM
 }
 
 export function sanitizePreferences(raw: unknown): UserPreferences {
@@ -18,6 +24,7 @@ export function sanitizePreferences(raw: unknown): UserPreferences {
     units: r.units === 'imperial' ? 'imperial' : 'metric',
     reduceMotion: r.reduceMotion === true,
     showPoiLayer: typeof r.showPoiLayer === 'boolean' ? r.showPoiLayer : true,
+    poiRadiusM: sanitizePoiRadius(r.poiRadiusM),
   }
 }
 

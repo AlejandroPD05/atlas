@@ -23,7 +23,7 @@ beforeEach(() => {
     selectedPlace: null,
     routeDestination: null,
     activeTab: 'saved',
-    prefs: { units: 'metric', reduceMotion: true, showPoiLayer: true },
+    prefs: { units: 'metric', reduceMotion: true, showPoiLayer: true, poiRadiusM: 1500 },
   })
 })
 

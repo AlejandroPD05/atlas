@@ -57,7 +57,7 @@ export function useSearchController() {
           baseUrl: appConfig.pois.url,
           category,
           center,
-          radiusM: 1500,
+          radiusM: useAppStore.getState().prefs.poiRadiusM,
           limit: 50,
           signal: ctrl.signal,
         })

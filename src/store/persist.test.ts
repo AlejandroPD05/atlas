@@ -15,11 +15,25 @@ describe('sanitizePreferences', () => {
   })
 
   it('conserva valores válidos', () => {
-    expect(sanitizePreferences({ units: 'imperial', reduceMotion: true, showPoiLayer: false })).toEqual({
+    expect(
+      sanitizePreferences({
+        units: 'imperial',
+        reduceMotion: true,
+        showPoiLayer: false,
+        poiRadiusM: 3000,
+      }),
+    ).toEqual({
       units: 'imperial',
       reduceMotion: true,
       showPoiLayer: false,
+      poiRadiusM: 3000,
     })
+  })
+
+  it('descarta radios de búsqueda fuera de la lista admitida', () => {
+    expect(sanitizePreferences({ poiRadiusM: 9999 }).poiRadiusM).toBe(1500)
+    expect(sanitizePreferences({ poiRadiusM: '500' }).poiRadiusM).toBe(1500)
+    expect(sanitizePreferences({ poiRadiusM: 500 }).poiRadiusM).toBe(500)
   })
 })
 

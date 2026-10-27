@@ -32,6 +32,35 @@
   gap: 9px;
 }
 
+.radiusBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 11px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-2);
+  background: rgba(255, 255, 255, 0.016);
+}
+
+.radiusHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.radiusLabel {
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.radiusValue {
+  font-family: var(--font-mono);
+  font-size: var(--fs-10);
+  color: var(--text-faint);
+}
+
 .sectionHead,
 .resultsHead,
 .resultMeta {

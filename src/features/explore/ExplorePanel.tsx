@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { ChevronRight, Compass, MapPin, RefreshCw, TriangleAlert } from 'lucide-react'
 import { Button, Chip, EmptyState, Eyebrow, Spinner } from '../../components/ui'
 import { useAppStore } from '../../store/appStore'
-import type { PlaceCategoryId } from '../../types/domain'
+import type { PlaceCategoryId, PoiRadiusM } from '../../types/domain'
+import { POI_RADII_M } from '../../types/domain'
 import { formatDistance } from '../../utils/format'
 import { haversineDistanceM } from '../../utils/geo'
 import {
@@ -36,9 +37,11 @@ export function ExplorePanel() {
   const anchor = useAppStore((s) => s.exploreAnchor)
   const viewport = useAppStore((s) => s.viewport)
   const units = useAppStore((s) => s.prefs.units)
+  const radiusM = useAppStore((s) => s.prefs.poiRadiusM)
+  const updatePrefs = useAppStore((s) => s.updatePrefs)
   const [showAll, setShowAll] = useState(false)
 
-  const { runCategory, refresh, retry, selectPoi, radiusM } = useExploreController()
+  const { runCategory, refresh, retry, selectPoi } = useExploreController()
   const activeCategory = categoryId ? getCategory(categoryId) : null
 
   const grouped = useMemo(() => {
@@ -62,6 +65,12 @@ export function ExplorePanel() {
     void runCategory(category)
   }
 
+  const chooseRadius = (next: PoiRadiusM) => {
+    if (next === radiusM) return
+    updatePrefs({ poiRadiusM: next })
+    if (activeCategory) void runCategory(activeCategory)
+  }
+
   return (
     <div className={styles.root}>
       <header className={styles.head}>
@@ -72,6 +81,30 @@ export function ExplorePanel() {
           resultados aparecen como puntos ámbar y se agrupan al alejar el mapa.
         </p>
       </header>
+
+      <section className={styles.radiusBlock} aria-label="Radio de búsqueda">
+        <div className={styles.radiusHead}>
+          <span className={styles.radiusLabel}>Radio de búsqueda</span>
+          <span className={styles.radiusValue}>{formatDistance(radiusM, units)}</span>
+        </div>
+        <div className={styles.chips} role="group" aria-label="Radio de búsqueda de lugares">
+          {POI_RADII_M.map((value) => (
+            <button
+              key={value}
+              type="button"
+              className={styles.chip}
+              aria-pressed={value === radiusM}
+              onClick={() => chooseRadius(value)}
+            >
+              {formatDistance(value, units)}
+            </button>
+          ))}
+        </div>
+        <p className={styles.sourceNote}>
+          Se aplica a Explorar y a las búsquedas por categoría. Al cambiarlo se repite la consulta
+          de la categoría activa.
+        </p>
+      </section>
 
       <section className={styles.section} aria-label="Categorías para explorar">
         <div className={styles.sectionHead}>

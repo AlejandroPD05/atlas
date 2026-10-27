@@ -164,12 +164,18 @@ export interface SavedCollection {
 
 /* ── Preferencias y vista ───────────────────────────────────── */
 
+/** Radio de exploración de POI, en metros. */
+export const POI_RADII_M = [500, 1500, 3000] as const
+export type PoiRadiusM = (typeof POI_RADII_M)[number]
+
 export interface UserPreferences {
   units: 'metric' | 'imperial'
   /** true = animaciones reducidas · false = según el sistema operativo */
   reduceMotion: boolean
   /** capa de POI sobre el mapa activada */
   showPoiLayer: boolean
+  /** radio de búsqueda de POI alrededor del centro del mapa */
+  poiRadiusM: PoiRadiusM
 }
 
 export interface MapViewport {
