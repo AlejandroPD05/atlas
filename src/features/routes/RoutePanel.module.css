@@ -55,6 +55,31 @@
   color: var(--text-faint);
 }
 
+.exportBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 11px;
+  border-radius: var(--r-2);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.016);
+}
+
+.exportHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.exportActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 /* ── Puntos ─────────────────────────────────────────────────── */
 
 .endpointBox {

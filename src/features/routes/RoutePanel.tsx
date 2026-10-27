@@ -10,6 +10,7 @@ import {
   CircleHelp,
   Clock3,
   Crosshair,
+  Download,
   Footprints,
   Info,
   LocateFixed,
@@ -26,9 +27,16 @@ import { useGeolocation } from '../../hooks/useGeolocation'
 import { useAppStore } from '../../store/appStore'
 import type { RouteEndpoint, RouteNote, RoutePlan, RoutePreference, TravelMode } from '../../types/domain'
 import { cn } from '../../utils/cn'
+import { downloadTextFile } from '../../utils/download'
 import { formatCoords, formatDistance, formatDuration } from '../../utils/format'
 import { uid } from '../../utils/id'
 import { getMapInstance } from '../map/mapInstance'
+import {
+  routeExportFileName,
+  routeToGeoJson,
+  routeToGpx,
+  type RouteExportFormat,
+} from './exportRoute'
 import { useRoutePlanner } from './useRoutePlanner'
 import styles from './RoutePanel.module.css'
 
@@ -276,6 +284,16 @@ export function RoutePanel() {
   const selectPlan = (option: RoutePlan) => {
     if (!plan || option.id === plan.id) return
     setRouteResult(option, options.filter((item) => item.id !== option.id))
+  }
+
+  const exportPlan = (format: RouteExportFormat) => {
+    if (!plan) return
+    const isGpx = format === 'gpx'
+    downloadTextFile(
+      routeExportFileName(plan, format),
+      isGpx ? routeToGpx(plan) : routeToGeoJson(plan),
+      isGpx ? 'application/gpx+xml;charset=utf-8' : 'application/geo+json;charset=utf-8',
+    )
   }
 
   const steps = plan?.legs.flatMap((leg) => leg.steps) ?? []
@@ -567,6 +585,35 @@ export function RoutePanel() {
             </div>
 
             <NoteList notes={plan.notes} />
+
+            <div className={styles.exportBlock}>
+              <div className={styles.exportHead}>
+                <Download size={13} aria-hidden="true" />
+                <span>Exportar ruta</span>
+              </div>
+              <div className={styles.exportActions}>
+                <Button
+                  variant="outline"
+                  small
+                  aria-label="Descargar GPX"
+                  onClick={() => exportPlan('gpx')}
+                >
+                  GPX
+                </Button>
+                <Button
+                  variant="outline"
+                  small
+                  aria-label="Descargar GeoJSON"
+                  onClick={() => exportPlan('geojson')}
+                >
+                  GeoJSON
+                </Button>
+              </div>
+              <p className={styles.hint}>
+                Solo la geometría y los datos devueltos por OSRM. Sin tráfico ni tiempos
+                inventados.
+              </p>
+            </div>
 
             {options.length > 1 ? (
               <div className={styles.optionsBlock}>
