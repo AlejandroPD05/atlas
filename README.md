@@ -10,9 +10,10 @@ ATLAS no inventa datos. Cuando un perfil, un horario o una accesibilidad no se p
 - **Búsqueda de lugares** con Nominatim (una petición por segundo, sin autocompletado) o Photon opcional (con sugerencias). Incluye cancelación de peticiones, estados de carga, vacío y error.
 - **Ficha de lugar** con dirección, coordenadas, contacto publicado en OSM, enlace al registro original, centrado en el mapa, guardado y acciones de ruta.
 - **Planificador de rutas** con origen, destino y hasta cuatro paradas reordenables. Permite elegir puntos sobre el mapa, borrar puntos y comparar alternativas reales de OSRM.
+- **Exportación de rutas** en GPX y GeoJSON con la geometría, las paradas y los datos devueltos por OSRM. No se añaden tiempos de tráfico ni datos inventados.
 - **Pasos de viaje en español**, distancia, duración y geometría de la ruta seleccionada.
 - **Perfiles honestos**: «Rápida» usa la ruta más rápida de OSRM. «Económica», «Tranquila», «Escénica», «Accesible» y «Explorar» explican por qué no hay datos para calcularlos; no se simulan.
-- **Explorar** puntos de interés por categorías con Overpass. Los resultados se agrupan con clustering real de MapLibre; al pulsar un grupo el mapa se acerca para separarlo.
+- **Explorar** puntos de interés por categorías con Overpass, con radio de búsqueda configurable (500 m, 1,5 km o 3 km). El radio también se aplica a las búsquedas por categoría desde Buscar. Los resultados se agrupan con clustering real de MapLibre; al pulsar un grupo el mapa se acerca para separarlo.
 - **Guardados locales** en colecciones versionadas: crear, renombrar, eliminar, quitar lugares, abrir la ficha y trazar una ruta.
 - **Ajustes** de unidades, movimiento reducido y capa de POI.
 - **Diseño responsive**: panel lateral colapsable en escritorio; bottom sheet de dos alturas en móvil, con arrastre desde el handle, clic y teclado, más navegación inferior. Nunca se muestran todos los paneles a la vez.
@@ -86,23 +87,27 @@ El proyecto no contiene claves ni secretos. Copia `.env.example` a `.env` solo s
 
 Si usas servicios públicos, respeta sus políticas: Nominatim no permite autocompletado y limita a una petición por segundo; Overpass y el OSRM de demo tienen límites y no ofrecen SLA. Para producción, configura servidores propios.
 
+Las variables `VITE_*` se compilan en el JavaScript público: no pongas secretos. La guía de despliegue, CSP, caché, licencias y smoke test está en [`docs/PRODUCTION.md`](docs/PRODUCTION.md).
+
 ## Verificación
 
 ```bash
 npm run lint
-npm test -- --run
+npm test
 npm run build
 ```
 
 Estado comprobado en esta versión:
 
-- 59 pruebas en 11 archivos, todas pasando.
+- 74 pruebas en 15 archivos, todas pasando.
 - `tsc --noEmit`, ESLint y build de producción pasando.
-- MapLibre se carga en un chunk diferido; el bundle inicial queda en ~343 kB (107 kB gzip). El chunk de MapLibre (~1,06 MB, 288 kB gzip) y su worker (518 kB) solo se descargan para el mapa.
+- MapLibre se carga en un chunk diferido; el bundle inicial queda en ~346 kB (109 kB gzip). El chunk de MapLibre (~1,06 MB, 288 kB gzip) y su worker (518 kB) solo se descargan para el mapa.
 - Verificado en navegador de escritorio (1440×900): mapa satelital con etiquetas vectoriales, atribución completa, cambio Satélite / Oscuro / Claro y diálogo de Ajustes completo (520×750) sin recortes. La brújula vuelve al pitch 55° del mapa base y se oculta cuando la cámara está en la referencia. El relieve 3D se comprobó en zona montañosa.
 - Verificado en navegador móvil (390×844): mapa satelital, atribución compacta que no tapa los controles, selector de capas, bottom sheet de búsqueda con alturas media/expandida, arrastre con snap y supresión del clic posterior, ajustes modales con scroll y planificador.
 - Verificado a 320×568: pestañas del sheet en columna y etiquetas de la nav móvil completas, sin recortes.
 - Verificado en navegador: clustering de POI, contador de grupo, expansión al pulsar, selección de un punto, visibilidad de la capa, guardado de un lugar, ficha, ruta desde un guardado, renombrar y eliminar colecciones.
+- Integración automatizada del bottom sheet (clic, arrastre, snap, supresión del clic posterior, teclado y reapertura) y de la cámara (brújula y restauración del pitch). La comprobación en un teléfono físico sigue siendo manual.
+- Build de producción servido con `npm run preview`: raíz y ruta desconocida devuelven la SPA; el selector de radio se comprobó a 1440×900 y 390×844 y persiste en `localStorage`. La exportación está cubierta por pruebas de serialización y descarga, sin abrir un visor externo.
 
 El aviso de Vite sobre el tamaño del chunk de MapLibre es esperado: es una librería grande que se descarga de forma diferida y no forma parte del arranque inicial de la interfaz.
 
@@ -126,7 +131,9 @@ src/
   styles/         tokens y estilos base
   test/           setup de Vitest
   types/          dominio tipado
-  utils/          formato, geometría y utilidades
+  utils/          formato, geometría, descarga y utilidades
+docs/
+  PRODUCTION.md   despliegue, CSP, licencias y smoke test
 ```
 
 ## Atribución

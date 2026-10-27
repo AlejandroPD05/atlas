@@ -3,11 +3,11 @@
 > Documento de continuidad para retomar el proyecto sin perder contexto.
 > Adjunta o pega este archivo al inicio de la nueva conversación.
 
-- **Fecha de corte:** 2026-10-26
+- **Fecha de corte:** 2026-10-27
 - **Proyecto:** `C:\Users\OneCu\Desktop\Personal\Yo\Profesional\Proyectos personales\atlas`
-- **Último commit de código:** `1695181 feat(ui): arrastrar el bottom sheet y afinar la camara`
+- **Último commit de código:** `9d9908d feat(routes): exportar la ruta en gpx y geojson`
 - **Documentación:** este `PROGRESS.md` se actualiza en el commit de cierre posterior.
-- **Estado:** rediseño satelital y pulido cerrados, incluidos el arrastre del bottom sheet, la cámara y la tipografía estrecha. Sin cambios pendientes en el código.
+- **Estado:** fase 5 y calidad cerradas (radio de POI, exportación de rutas y pruebas de integración). Preparación de producción documentada; el despliegue real sigue pendiente de dominio, hosting y credenciales.
 - **Servidor de desarrollo:** detenido al cerrar la sesión. Arrancar con `npm run dev` en el puerto 5175.
 
 ---
@@ -144,20 +144,60 @@ Relieve 3D:
 
 - Comprobado visualmente en la iteración anterior en zona montañosa (Sierra de Guadarrama, centro aproximado `-3.956, 40.842`, zoom 13.2, pitch 68). La configuración de DEM, hillshade y exageración no cambió después de esa comprobación.
 
-### 2.5. Validación técnica
+### 2.5. Fase 5: radio de POI, exportación y calidad
 
-Última ejecución, con el código final `1695181`:
+Calidad:
+
+- `SidePanel.test.tsx` cubre clic, arrastre con altura en vivo, snap, supresión del clic posterior, teclado y reapertura del bottom sheet.
+- `MapControls.test.tsx` cubre la brújula oculta en la vista por defecto, su aparición al inclinar/girar y el reset a pitch 55 / bearing 0.
+- jsdom no implementa pointer capture ni un viewport móvil estable; las pruebas los sustituyen y restauran entre casos.
+- La verificación en un teléfono físico no está disponible en este entorno y queda como checklist manual.
+
+Comprobado sobre el build de producción (`npm run preview`):
+
+- La raíz y una ruta desconocida responden `200` con la SPA.
+- Selector de radio visible y usable a 1440×900 y a 390×844 (bottom sheet), sin recortes.
+- Al elegir 3 km, `localStorage` guarda `poiRadiusM: 3000` y la interfaz refleja la selección.
+- La exportación GPX/GeoJSON está cubierta por pruebas de serialización y de descarga; no se abrió un visor externo en esta sesión.
+
+Radio de POI:
+
+- Nueva preferencia persistida `poiRadiusM` con tres valores reales: 500 m, 1,5 km y 3 km. Por defecto, 1,5 km.
+- El saneado de `localStorage` descarta valores fuera de la lista admitida.
+- El selector vive en Explorar; al cambiarlo con una categoría activa se repite la consulta.
+- El radio se aplica tanto a Explorar como a las búsquedas por categoría desde Buscar.
+- La UI muestra el radio efectivo junto al proveedor y en la cabecera del selector.
+
+Exportación de ruta:
+
+- `exportRoute.ts` serializa GPX 1.1 y GeoJSON RFC 7946 a partir de la geometría, las paradas, la distancia y la duración devueltas por OSRM.
+- El GPX incluye una traza, waypoints con nombre y un `desc` con distancia, duración y proveedor.
+- El GeoJSON incluye una `LineString` y un `Point` por parada con coordenadas; las paradas sin coordenadas se omiten.
+- Los nombres se escapan al generar XML.
+- Los botones «Descargar GPX» y «Descargar GeoJSON» viven en el resultado de la ruta y usan una descarga local por `Blob`; no pasan por ningún servidor.
+- No se añaden tráfico, peajes ni tiempos que el proveedor no haya devuelto.
+
+Preparación de producción:
+
+- `docs/PRODUCTION.md` reúne build, variables, cabeceras/CSP, caché, licencias, smoke test y limitaciones.
+- `.env.example` avisa de que las variables `VITE_*` son públicas y de que cambiar proveedores exige reconstruir.
+- `package.json` declara el rango de Node compatible.
+- El despliegue real no se ejecutó: faltan dominio, proveedor de hosting y credenciales/licencias de mapas.
+
+### 2.6. Validación técnica
+
+Última ejecución, con el código final `9d9908d`:
 
 | Comando | Resultado |
 |---|---|
 | `npx tsc --noEmit` | Pasa (incluido en `npm run build`) |
 | `npm run lint` | Pasa |
-| `npm test` | 59 pruebas, 11 archivos, todas pasando |
+| `npm test` | 74 pruebas, 15 archivos, todas pasando |
 | `npm run build` | Pasa |
 
 Build de producción:
 
-- Bundle inicial: `index-*.js` ~343 kB (107 kB gzip).
+- Bundle inicial: `index-*.js` ~346 kB (109 kB gzip).
 - MapLibre: ~1,06 MB (288 kB gzip), en chunk diferido.
 - Worker de MapLibre: ~518 kB.
 - El aviso de Vite por tamaño del chunk de MapLibre es esperado.
@@ -172,6 +212,8 @@ atlas/
   README.md
   PROGRESS.md
   package.json
+  docs/
+    PRODUCTION.md
   src/
     app/
       App.tsx
@@ -226,7 +268,11 @@ atlas/
 
 ```text
 src/features/explore/categories.test.ts
-src/features/explore/ExplorePanel.test.tsx
+src/features/explore/ExplorePanel.test.tsx (consulta, error, radio)
+src/features/layout/SidePanel.test.tsx (bottom sheet)
+src/features/map/MapControls.test.tsx (brújula y cámara)
+src/features/routes/RoutePanel.test.tsx (exportación)
+src/features/routes/exportRoute.test.ts (GPX/GeoJSON)
 src/features/saved/SavedPanel.test.tsx
 src/services/geocoding/nominatim.test.ts
 src/services/geocoding/photon.test.ts
@@ -234,10 +280,11 @@ src/services/osm/normalize.test.ts
 src/services/pois/overpass.test.ts
 src/services/routing/osrm.test.ts
 src/features/map/basemap.test.ts
-...
+src/store/persist.test.ts
+src/utils/geo.test.ts
 ```
 
-Total actual: **59 pruebas en 11 archivos**.
+Total actual: **74 pruebas en 15 archivos**.
 
 ---
 
@@ -351,7 +398,8 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 - Photon opcional para sugerencias.
 - Rutas: OSRM público de demo solo para coche.
 - A pie/bici: deshabilitados salvo que se configure `VITE_ROUTING_URL_WALK` / `VITE_ROUTING_URL_BIKE`.
-- POI: Overpass público.
+- POI: Overpass público. El radio de búsqueda es una preferencia persistida (500 m, 1,5 km o 3 km) y se aplica a Explorar y a Buscar por categoría.
+- Exportación: GPX/GeoJSON generados en el navegador desde la respuesta de OSRM; no hay servicio de exportación ni datos añadidos.
 - Guardados: `localStorage` versionado y saneado.
 - Viewport: `sessionStorage`.
 - No se simulan tráfico, accesibilidad, horarios, precios ni tiempos.
@@ -387,18 +435,24 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 7. **Densidad de etiquetas:** POI desde zoom 15.5 y calles menores desde 14.5; a 14.2 quedan avenidas, distritos y agua. Si se quiere una referencia aún más limpia, subir el `minzoom` de carreteras mayores (10) o de distritos (11) en `basemap.ts`.
 8. **Sin proveedor de producción configurado:** todo el mapa base funciona con servicios públicos de demo. La vía es `VITE_STYLE_SATELLITE_URL` o las variables `VITE_TILES_SATELLITE_*`.
 9. **No hay 3D de edificios:** solo terreno y cielo. No afirmarlo de otra forma.
+10. **Validación en teléfono físico pendiente:** el bottom sheet y la cámara están cubiertos con jsdom y eventos sintéticos, no con un dispositivo real.
+11. **Despliegue real pendiente:** no hay dominio, hosting ni credenciales/licencias configuradas. `docs/PRODUCTION.md` deja el procedimiento, pero no se publicó nada.
 
 ---
 
 ## 6. Siguiente paso
 
-El rediseño satelital y todo el pulido visual (bottom sheet, cámara y tipografía estrecha) ya están cerrados. **No hay tareas pendientes ni deuda bloqueante de esta iteración.**
+Las tres líneas acordadas están cerradas:
 
-Para continuar, elegir una línea de trabajo con el usuario antes de escribir código:
+1. **Calidad:** pruebas de integración del bottom sheet y de la cámara.
+2. **Fase 5:** radio de POI y exportación GPX/GeoJSON.
+3. **Producción:** guía, variables, cabeceras, licencias y smoke test.
 
-1. **Fase 5 de producto:** nuevas funciones (por ejemplo, filtros de POI, exportar rutas, comparador de alternativas, historial de búsquedas).
-2. **Producción:** proveedor de mapa con clave, variables `.env`, atribución definitiva, revisión de licencias y despliegue.
-3. **Calidad:** ampliar pruebas de integración del mapa y de los flujos móviles.
+No hay deuda bloqueante de código. Para continuar, elegir con el usuario:
+
+1. **Despliegue real:** dominio, hosting estático, proveedor de mapas con licencia y smoke test siguiendo `docs/PRODUCTION.md`.
+2. **Validación física:** probar arrastre, teclado, atribución y ajustes en un teléfono real.
+3. **Nueva fase de producto:** acordar alcance antes de escribir código; no simular datos para llenar funciones.
 
 Antes de empezar cualquier línea, leer este archivo y ejecutar el quality gate para confirmar que la base sigue sana.
 
@@ -440,10 +494,12 @@ location.reload()
 Continúa ATLAS desde el archivo PROGRESS.md adjunto.
 
 Estado: fases 1–4 y rediseño satelital en `9e82604`; pulido visual en `8159f42` y `1695181`.
+Calidad, fase 5 (radio de POI y exportación) y documentación de producción en `9dd8e48`,
+`14fef2f`, `9d9908d` y el commit de cierre documental.
 El working tree está limpio. El servidor de desarrollo está detenido.
 
 Empieza por:
-1. Leer PROGRESS.md y revisar `git status` / `git log --oneline -3`.
+1. Leer PROGRESS.md y revisar `git status` / `git log --oneline -5`.
 2. Ejecutar `npm run lint`, `npm test` y `npm run build` (incluye `tsc --noEmit`).
 3. Arrancar `npm run dev` y confirmar que el mapa abre en Satélite, con pitch 55 y zoom 13.2.
 4. Preguntar al usuario qué línea de la sección 6 quiere abordar antes de escribir código.

@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "description": "ATLAS — explorador cartográfico cinematográfico. Rutas según intención, datos honestos.",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "dev": "vite --port 5175",
     "build": "tsc --noEmit && vite build",
