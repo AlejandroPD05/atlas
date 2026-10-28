@@ -59,6 +59,23 @@ npm run dev
 - Desarrollo: <http://127.0.0.1:5175>
 - Build de producción: `npm run build`
 - Vista previa del build: `npm run preview` → <http://127.0.0.1:5176>
+- Producción: <https://atlas-explorador.pages.dev>
+
+### Despliegue
+
+El sitio se publica en Cloudflare Pages con el proyecto `atlas-explorador`:
+
+```bash
+npm run deploy
+```
+
+El comando construye, sube `dist/` y publica en la rama de producción `main`. Las cabeceras
+(CSP, HSTS, caché) y el fallback de la SPA viven en `public/_headers` y `public/_redirects`, así
+que Vite los copia a `dist/` en cada build. La configuración de Pages está en `wrangler.toml`.
+
+Sigue siendo un despliegue de demostración: la imagen satelital de Esri no está licenciada para uso
+comercial y los proveedores públicos no tienen SLA. Para un dominio propio o tráfico real, consulta
+[`docs/PRODUCTION.md`](docs/PRODUCTION.md).
 
 El proyecto no contiene claves ni secretos. Copia `.env.example` a `.env` solo si quieres cambiar de proveedor.
 
@@ -108,6 +125,7 @@ Estado comprobado en esta versión:
 - Verificado en navegador: clustering de POI, contador de grupo, expansión al pulsar, selección de un punto, visibilidad de la capa, guardado de un lugar, ficha, ruta desde un guardado, renombrar y eliminar colecciones.
 - Integración automatizada del bottom sheet (clic, arrastre, snap, supresión del clic posterior, teclado y reapertura) y de la cámara (brújula y restauración del pitch). La comprobación en un teléfono físico sigue siendo manual.
 - Build de producción servido con `npm run preview`: raíz y ruta desconocida devuelven la SPA; el selector de radio se comprobó a 1440×900 y 390×844 y persiste en `localStorage`. La exportación está cubierta por pruebas de serialización y descarga, sin abrir un visor externo.
+- Desplegado en <https://atlas-explorador.pages.dev> (Cloudflare Pages): raíz y ruta desconocida devuelven `200` con la SPA, la CSP y las cabeceras se aplican, el mapa satelital carga, la búsqueda real de «Museo del Prado» devuelve su ficha y OSRM calcula una ruta de 17 pasos sin errores de consola.
 
 El aviso de Vite sobre el tamaño del chunk de MapLibre es esperado: es una librería grande que se descarga de forma diferida y no forma parte del arranque inicial de la interfaz.
 

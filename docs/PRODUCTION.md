@@ -4,6 +4,26 @@ Esta guía deja el build listo para publicarse en cualquier hosting estático. E
 necesita un dominio, un proveedor de hosting y, si se quieren mapas comerciales, credenciales y
 licencias. Nada de eso está incluido en el repositorio.
 
+## 0. Despliegue actual
+
+- **URL:** <https://atlas-explorador.pages.dev>
+- **Hosting:** Cloudflare Pages, proyecto `atlas-explorador`, rama de producción `main`.
+- **Comando:** `npm run deploy` (build + `wrangler pages deploy dist`).
+- **Cabeceras y SPA:** `public/_headers` y `public/_redirects`; Vite los copia a `dist/`.
+- **Estado:** despliegue de demostración. La imagen satelital de Esri no está licenciada para uso
+  comercial, no hay dominio propio y los proveedores públicos no tienen SLA.
+
+Para volver a publicar tras un cambio:
+
+```bash
+npm run lint
+npm test
+npm run deploy
+```
+
+La primera vez hay que autenticar Wrangler con `npx wrangler login`. Las credenciales se guardan
+fuera del repositorio.
+
 ## 1. Qué se publica
 
 ATLAS es una SPA de Vite: el artefacto es la carpeta `dist/`. No hay servidor propio, cuentas ni
@@ -45,8 +65,9 @@ sustituirlos o asumir sus límites, su disponibilidad y sus términos.
 
 ## 3. Cabeceras y CSP
 
-Ejemplo para un hosting que admita un archivo `_headers` (Netlify, Cloudflare Pages). Ajusta los
-dominios si cambias de proveedor de mapas o de rutas.
+El repositorio ya incluye `public/_headers` y `public/_redirects` para Cloudflare Pages. Ajusta los
+dominios si cambias de proveedor de mapas o de rutas. El mismo contenido sirve en Netlify; en otros
+hostings hay que traducirlo a su configuración (nginx, Caddy, etc.).
 
 ```text
 /*

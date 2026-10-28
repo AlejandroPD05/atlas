@@ -157,7 +157,9 @@ export function SettingsDialog() {
             <p className={styles.note}>
               Datos cartográficos © OpenStreetMap contributors (licencia ODbL). Búsqueda mediante Nominatim,
               rutas mediante OSRM y lugares mediante Overpass. ATLAS no muestra tráfico, horarios ni precios
-              en tiempo real: si un dato no existe en la fuente, se indica como desconocido.
+              en tiempo real: si un dato no existe en la fuente, se indica como desconocido. La imagen
+              satelital de demostración (Esri World Imagery) no está licenciada para uso comercial: para
+              publicar con tráfico real hay que configurar un proveedor propio.
             </p>
           </section>
         </div>

@@ -3,11 +3,11 @@
 > Documento de continuidad para retomar el proyecto sin perder contexto.
 > Adjunta o pega este archivo al inicio de la nueva conversación.
 
-- **Fecha de corte:** 2026-10-27
+- **Fecha de corte:** 2026-10-28
 - **Proyecto:** `C:\Users\OneCu\Desktop\Personal\Yo\Profesional\Proyectos personales\atlas`
-- **Último commit de código:** `9d9908d feat(routes): exportar la ruta en gpx y geojson`
+- **Último commit funcional:** `9d9908d feat(routes): exportar la ruta en gpx y geojson`; el despliegue y su configuración van en el commit de cierre.
 - **Documentación:** este `PROGRESS.md` se actualiza en el commit de cierre posterior.
-- **Estado:** fase 5 y calidad cerradas (radio de POI, exportación de rutas y pruebas de integración). Preparación de producción documentada; el despliegue real sigue pendiente de dominio, hosting y credenciales.
+- **Estado:** fase 5 y calidad cerradas (radio de POI, exportación de rutas y pruebas de integración). Publicado en Cloudflare Pages como demostración: <https://atlas-explorador.pages.dev>. Dominio propio, licencias de mapas y validación en teléfono físico siguen pendientes.
 - **Servidor de desarrollo:** detenido al cerrar la sesión. Arrancar con `npm run dev` en el puerto 5175.
 
 ---
@@ -182,11 +182,22 @@ Preparación de producción:
 - `docs/PRODUCTION.md` reúne build, variables, cabeceras/CSP, caché, licencias, smoke test y limitaciones.
 - `.env.example` avisa de que las variables `VITE_*` son públicas y de que cambiar proveedores exige reconstruir.
 - `package.json` declara el rango de Node compatible.
-- El despliegue real no se ejecutó: faltan dominio, proveedor de hosting y credenciales/licencias de mapas.
 
-### 2.6. Validación técnica
+### 2.6. Despliegue en Cloudflare Pages
 
-Última ejecución, con el código final `9d9908d`:
+- Proyecto `atlas-explorador`, rama de producción `main`: <https://atlas-explorador.pages.dev>.
+- `wrangler.toml` declara `pages_build_output_dir = "./dist"` y la fecha de compatibilidad.
+- `public/_headers` aplica CSP, HSTS, `nosniff`, `Referrer-Policy`, `Permissions-Policy` y COOP; también define caché inmutable para `/assets/*` y `no-cache` para `index.html`.
+- `public/_redirects` devuelve `index.html` con `200` en cualquier ruta, así que la SPA funciona al recargar.
+- `npm run deploy` construye y publica con `wrangler pages deploy dist --branch main`.
+- El proyecto se creó con `wrangler pages project create --force`: la delegación automática a Workers fallaba con «Missing entry-point». Los despliegues posteriores van directos a Pages.
+- Ajustes muestra que la imagen satelital de demostración (Esri World Imagery) no está licenciada para uso comercial.
+- Comprobado en producción: raíz y ruta desconocida devuelven `200`; CSP y cabeceras presentes; mapa satelital, búsqueda real de «Museo del Prado», ficha y ruta OSRM de 17 pasos sin errores de consola.
+- Sigue siendo un despliegue de demostración: no hay dominio propio y los proveedores públicos no tienen SLA.
+
+### 2.7. Validación técnica
+
+Última ejecución, con el código final de la fase 5 y el despliegue:
 
 | Comando | Resultado |
 |---|---|
@@ -194,6 +205,7 @@ Preparación de producción:
 | `npm run lint` | Pasa |
 | `npm test` | 74 pruebas, 15 archivos, todas pasando |
 | `npm run build` | Pasa |
+| `npm run deploy` | Publicado en Cloudflare Pages; raíz y ruta desconocida responden `200` |
 
 Build de producción:
 
@@ -212,6 +224,11 @@ atlas/
   README.md
   PROGRESS.md
   package.json
+  wrangler.toml
+  public/
+    _headers
+    _redirects
+    favicon.svg
   docs/
     PRODUCTION.md
   src/
@@ -436,21 +453,21 @@ Aclaración honesta: esto es **satélite 2D proyectado sobre un DEM**. No es fot
 8. **Sin proveedor de producción configurado:** todo el mapa base funciona con servicios públicos de demo. La vía es `VITE_STYLE_SATELLITE_URL` o las variables `VITE_TILES_SATELLITE_*`.
 9. **No hay 3D de edificios:** solo terreno y cielo. No afirmarlo de otra forma.
 10. **Validación en teléfono físico pendiente:** el bottom sheet y la cámara están cubiertos con jsdom y eventos sintéticos, no con un dispositivo real.
-11. **Despliegue real pendiente:** no hay dominio, hosting ni credenciales/licencias configuradas. `docs/PRODUCTION.md` deja el procedimiento, pero no se publicó nada.
+11. **Despliegue de demostración publicado:** <https://atlas-explorador.pages.dev> funciona en Cloudflare Pages, pero no hay dominio propio ni proveedor de mapas con licencia. Esri World Imagery sigue siendo un servicio de demo y no es apto para uso comercial.
 
 ---
 
 ## 6. Siguiente paso
 
-Las tres líneas acordadas están cerradas:
+Las tres líneas acordadas están cerradas y el despliegue de demostración está publicado:
 
 1. **Calidad:** pruebas de integración del bottom sheet y de la cámara.
 2. **Fase 5:** radio de POI y exportación GPX/GeoJSON.
-3. **Producción:** guía, variables, cabeceras, licencias y smoke test.
+3. **Producción:** guía, variables, cabeceras, licencias, smoke test y publicación en Cloudflare Pages.
 
 No hay deuda bloqueante de código. Para continuar, elegir con el usuario:
 
-1. **Despliegue real:** dominio, hosting estático, proveedor de mapas con licencia y smoke test siguiendo `docs/PRODUCTION.md`.
+1. **Dominio propio y mapas licenciados:** conectar un dominio a Cloudflare Pages, contratar un estilo satelital (MapTiler/Mapbox) y actualizar CSP y variables. Después, `npm run deploy`.
 2. **Validación física:** probar arrastre, teclado, atribución y ajustes en un teléfono real.
 3. **Nueva fase de producto:** acordar alcance antes de escribir código; no simular datos para llenar funciones.
 
@@ -496,13 +513,18 @@ Continúa ATLAS desde el archivo PROGRESS.md adjunto.
 Estado: fases 1–4 y rediseño satelital en `9e82604`; pulido visual en `8159f42` y `1695181`.
 Calidad, fase 5 (radio de POI y exportación) y documentación de producción en `9dd8e48`,
 `14fef2f`, `9d9908d` y el commit de cierre documental.
-El working tree está limpio. El servidor de desarrollo está detenido.
+El proyecto está publicado en https://atlas-explorador.pages.dev (Cloudflare Pages, proyecto
+`atlas-explorador`, rama `main`). El working tree está limpio y el servidor de desarrollo, detenido.
 
 Empieza por:
 1. Leer PROGRESS.md y revisar `git status` / `git log --oneline -5`.
 2. Ejecutar `npm run lint`, `npm test` y `npm run build` (incluye `tsc --noEmit`).
-3. Arrancar `npm run dev` y confirmar que el mapa abre en Satélite, con pitch 55 y zoom 13.2.
+3. Abrir https://atlas-explorador.pages.dev y comprobar que el mapa abre en Satélite con pitch 55.
 4. Preguntar al usuario qué línea de la sección 6 quiere abordar antes de escribir código.
+
+Para redesplegar: `npm run deploy` (si Wrangler no está autenticado, `npx wrangler login`).
+No publiques con Esri World Imagery si el uso deja de ser una demostración: configura un
+proveedor licenciado y actualiza la CSP de `public/_headers`.
 
 No rehagas las fases 1–4 ni vuelvas al mapa vectorial por defecto. No simules datos. No uses CARTO sin clave. No afirmes que hay 3D fotorrealista global: es satélite 2D sobre DEM. Mantén la atribución compacta en móvil.
 ```
