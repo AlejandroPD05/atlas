@@ -4,6 +4,8 @@ Explorador cartográfico en español: busca lugares reales de OpenStreetMap, pla
 
 ATLAS no inventa datos. Cuando un perfil, un horario o una accesibilidad no se pueden calcular con las fuentes disponibles, la interfaz lo dice y mantiene la ruta real.
 
+**Demo:** <https://atlas-explorador.pages.dev> · **Código:** <https://github.com/AlejandroPD05/atlas>
+
 ## Qué incluye
 
 - **Mapa satelital realista por defecto**: imagen real del mundo, etiquetas, relieve 3D, cielo y perspectiva cinematográfica con MapLibre GL. Incluye estilos vectoriales de OpenFreeMap (oscuro y claro) como alternativas y acepta teselas propias.

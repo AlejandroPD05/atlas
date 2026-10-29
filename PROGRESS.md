@@ -185,6 +185,7 @@ Preparación de producción:
 
 ### 2.6. Despliegue en Cloudflare Pages
 
+- Repositorio público: <https://github.com/AlejandroPD05/atlas> (rama `main`, topics y homepage configurados).
 - Proyecto `atlas-explorador`, rama de producción `main`: <https://atlas-explorador.pages.dev>.
 - `wrangler.toml` declara `pages_build_output_dir = "./dist"` y la fecha de compatibilidad.
 - `public/_headers` aplica CSP, HSTS, `nosniff`, `Referrer-Policy`, `Permissions-Policy` y COOP; también define caché inmutable para `/assets/*` y `no-cache` para `index.html`.
@@ -514,7 +515,8 @@ Estado: fases 1–4 y rediseño satelital en `9e82604`; pulido visual en `8159f4
 Calidad, fase 5 (radio de POI y exportación) y documentación de producción en `9dd8e48`,
 `14fef2f`, `9d9908d` y el commit de cierre documental.
 El proyecto está publicado en https://atlas-explorador.pages.dev (Cloudflare Pages, proyecto
-`atlas-explorador`, rama `main`). El working tree está limpio y el servidor de desarrollo, detenido.
+`atlas-explorador`, rama `main`) y su código en https://github.com/AlejandroPD05/atlas.
+El working tree está limpio y el servidor de desarrollo, detenido.
 
 Empieza por:
 1. Leer PROGRESS.md y revisar `git status` / `git log --oneline -5`.
